@@ -16,6 +16,11 @@ import (
 	"github.com/spatial-memory/spatial-memory/internal/config"
 	"github.com/spatial-memory/spatial-memory/internal/database"
 	"github.com/spatial-memory/spatial-memory/internal/handler"
+	"github.com/spatial-memory/spatial-memory/internal/pkg/sms"
+	"github.com/spatial-memory/spatial-memory/internal/pkg/wechat"
+	"github.com/spatial-memory/spatial-memory/internal/repository"
+	"github.com/spatial-memory/spatial-memory/internal/router"
+	"github.com/spatial-memory/spatial-memory/internal/service"
 )
 
 func main() {
@@ -29,33 +34,56 @@ func main() {
 
 	ctx := context.Background()
 
-	// Database
+	// --- Infrastructure ---
 	dbPool, err := database.NewPostgresPool(ctx, cfg.Database)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to connect to PostgreSQL")
 	}
 	defer dbPool.Close()
 
-	// Run migrations
 	if err := database.RunMigrations(cfg.Database.DSN()); err != nil {
 		log.Fatal().Err(err).Msg("failed to run migrations")
 	}
 
-	// Redis
 	redisClient, err := database.NewRedisClient(ctx, cfg.Redis)
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to connect to Redis")
 	}
 	defer redisClient.Close()
 
-	// Router
+	// --- Repositories ---
+	userRepo := repository.NewUserRepository(dbPool)
+	authRepo := repository.NewAuthRepository(dbPool)
+
+	// --- External Clients ---
+	smsClient := sms.NewClient(cfg.SMS)
+	wechatClient := wechat.NewClient(cfg.WeChat)
+
+	// --- Services ---
+	tokenService := service.NewTokenService(cfg.JWT, authRepo, userRepo)
+	authService := service.NewAuthService(userRepo, authRepo, tokenService, smsClient, wechatClient, redisClient)
+
+	// --- Handlers ---
+	healthHandler := handler.NewHealthHandler(dbPool, redisClient)
+	authHandler := handler.NewAuthHandler(authService)
+	userHandler := handler.NewUserHandler(userRepo)
+
+	// --- Router ---
 	gin.SetMode(cfg.Server.Mode)
 	r := gin.New()
 	r.Use(gin.Recovery())
 
-	healthHandler := handler.NewHealthHandler(dbPool, redisClient)
-	r.GET("/health", healthHandler.Health)
+	router.Setup(r, router.Config{
+		TokenService: tokenService,
+		RedisClient:  redisClient,
+		Handlers: router.Handlers{
+			Health: healthHandler,
+			Auth:   authHandler,
+			User:   userHandler,
+		},
+	})
 
+	// --- Server ---
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.Server.Port),
 		Handler:      r,
