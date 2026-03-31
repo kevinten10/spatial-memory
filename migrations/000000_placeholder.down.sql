@@ -1,0 +1,2 @@
+-- Placeholder
+SELECT 1;

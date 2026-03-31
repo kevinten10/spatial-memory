@@ -14,11 +14,11 @@ import (
 	"github.com/rs/zerolog/log"
 
 	"github.com/spatial-memory/spatial-memory/internal/config"
+	"github.com/spatial-memory/spatial-memory/internal/database"
 	"github.com/spatial-memory/spatial-memory/internal/handler"
 )
 
 func main() {
-	// Pretty console logging in development
 	log.Logger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}).
 		With().Timestamp().Caller().Logger()
 
@@ -27,12 +27,33 @@ func main() {
 		log.Fatal().Err(err).Msg("failed to load config")
 	}
 
+	ctx := context.Background()
+
+	// Database
+	dbPool, err := database.NewPostgresPool(ctx, cfg.Database)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to connect to PostgreSQL")
+	}
+	defer dbPool.Close()
+
+	// Run migrations
+	if err := database.RunMigrations(cfg.Database.DSN()); err != nil {
+		log.Fatal().Err(err).Msg("failed to run migrations")
+	}
+
+	// Redis
+	redisClient, err := database.NewRedisClient(ctx, cfg.Redis)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to connect to Redis")
+	}
+	defer redisClient.Close()
+
+	// Router
 	gin.SetMode(cfg.Server.Mode)
 	r := gin.New()
 	r.Use(gin.Recovery())
 
-	// Health check — DB and Redis will be nil until Task 1.3 wires them up
-	healthHandler := handler.NewHealthHandler(nil, nil)
+	healthHandler := handler.NewHealthHandler(dbPool, redisClient)
 	r.GET("/health", healthHandler.Health)
 
 	srv := &http.Server{
@@ -42,7 +63,6 @@ func main() {
 		WriteTimeout: cfg.Server.WriteTimeout,
 	}
 
-	// Start server in goroutine
 	go func() {
 		log.Info().Int("port", cfg.Server.Port).Msg("starting server")
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -50,16 +70,16 @@ func main() {
 		}
 	}()
 
-	// Graceful shutdown on SIGINT/SIGTERM
+	// Graceful shutdown
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Info().Msg("shutting down server...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	if err := srv.Shutdown(ctx); err != nil {
+	if err := srv.Shutdown(shutdownCtx); err != nil {
 		log.Fatal().Err(err).Msg("server forced shutdown")
 	}
 
