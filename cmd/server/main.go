@@ -57,6 +57,8 @@ func main() {
 	memoryRepo := repository.NewMemoryRepository(dbPool)
 	permRepo := repository.NewPermissionRepository(dbPool)
 	spatialCache := repository.NewSpatialCache(redisClient)
+	interactionRepo := repository.NewInteractionRepository(dbPool)
+	moderationRepo := repository.NewModerationRepository(dbPool)
 
 	// --- External Clients ---
 	smsClient := sms.NewClient(cfg.SMS)
@@ -66,12 +68,14 @@ func main() {
 	tokenService := service.NewTokenService(cfg.JWT, authRepo, userRepo)
 	authService := service.NewAuthService(userRepo, authRepo, tokenService, smsClient, wechatClient, redisClient)
 	memoryService := service.NewMemoryService(memoryRepo, spatialCache, permRepo)
+	interactionService := service.NewInteractionService(interactionRepo, memoryRepo, moderationRepo)
 
 	// --- Handlers ---
 	healthHandler := handler.NewHealthHandler(dbPool, redisClient)
 	authHandler := handler.NewAuthHandler(authService)
 	userHandler := handler.NewUserHandler(userRepo)
 	memoryHandler := handler.NewMemoryHandler(memoryService)
+	interactionHandler := handler.NewInteractionHandler(interactionService)
 
 	// --- Router ---
 	gin.SetMode(cfg.Server.Mode)
@@ -82,10 +86,11 @@ func main() {
 		TokenService: tokenService,
 		RedisClient:  redisClient,
 		Handlers: router.Handlers{
-			Health: healthHandler,
-			Auth:   authHandler,
-			User:   userHandler,
-			Memory: memoryHandler,
+			Health:      healthHandler,
+			Auth:        authHandler,
+			User:        userHandler,
+			Memory:      memoryHandler,
+			Interaction: interactionHandler,
 		},
 	})
 

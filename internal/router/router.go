@@ -12,10 +12,11 @@ import (
 )
 
 type Handlers struct {
-	Health *handler.HealthHandler
-	Auth   *handler.AuthHandler
-	User   *handler.UserHandler
-	Memory *handler.MemoryHandler
+	Health      *handler.HealthHandler
+	Auth        *handler.AuthHandler
+	User        *handler.UserHandler
+	Memory      *handler.MemoryHandler
+	Interaction *handler.InteractionHandler
 }
 
 type Config struct {
@@ -58,5 +59,12 @@ func Setup(r *gin.Engine, cfg Config) {
 		protected.GET("/memories/:id", cfg.Handlers.Memory.Get)
 		protected.PUT("/memories/:id", cfg.Handlers.Memory.Update)
 		protected.DELETE("/memories/:id", cfg.Handlers.Memory.Delete)
+
+		// Interactions
+		protected.POST("/memories/:id/like", cfg.Handlers.Interaction.Like)
+		protected.DELETE("/memories/:id/like", cfg.Handlers.Interaction.Unlike)
+		protected.POST("/memories/:id/bookmark", cfg.Handlers.Interaction.Bookmark)
+		protected.DELETE("/memories/:id/bookmark", cfg.Handlers.Interaction.Unbookmark)
+		protected.POST("/memories/:id/report", cfg.Handlers.Interaction.Report)
 	}
 }
