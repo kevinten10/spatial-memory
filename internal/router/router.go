@@ -15,6 +15,7 @@ type Handlers struct {
 	Health *handler.HealthHandler
 	Auth   *handler.AuthHandler
 	User   *handler.UserHandler
+	Memory *handler.MemoryHandler
 }
 
 type Config struct {
@@ -49,5 +50,13 @@ func Setup(r *gin.Engine, cfg Config) {
 		protected.GET("/users/me", cfg.Handlers.User.GetMe)
 		protected.PUT("/users/me", cfg.Handlers.User.UpdateMe)
 		protected.GET("/users/:id", cfg.Handlers.User.GetUser)
+
+		// Memories
+		protected.POST("/memories", cfg.Handlers.Memory.Create)
+		protected.GET("/memories/mine", cfg.Handlers.Memory.ListMine)
+		protected.GET("/memories/nearby", cfg.Handlers.Memory.Nearby)
+		protected.GET("/memories/:id", cfg.Handlers.Memory.Get)
+		protected.PUT("/memories/:id", cfg.Handlers.Memory.Update)
+		protected.DELETE("/memories/:id", cfg.Handlers.Memory.Delete)
 	}
 }
