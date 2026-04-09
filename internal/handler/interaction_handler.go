@@ -11,16 +11,28 @@ import (
 	"github.com/spatial-memory/spatial-memory/internal/service"
 )
 
+// InteractionHandler handles memory interactions (likes, bookmarks, reports).
 type InteractionHandler struct {
 	interactionService service.InteractionService
 }
 
+// NewInteractionHandler creates a new interaction handler.
 func NewInteractionHandler(interactionService service.InteractionService) *InteractionHandler {
 	return &InteractionHandler{interactionService: interactionService}
 }
 
-// Like adds a like to a memory.
-// POST /api/v1/memories/:id/like
+// Like godoc
+// @Summary Like a memory
+// @Description Add a like to a memory (toggle)
+// @Tags interactions
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Memory ID"
+// @Success 200 {object} map[string]bool "Like status"
+// @Failure 400 {object} response.ErrorResponse "Invalid memory ID"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Router /memories/{id}/like [post]
 func (h *InteractionHandler) Like(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 
@@ -39,14 +51,34 @@ func (h *InteractionHandler) Like(c *gin.Context) {
 	response.Success(c, gin.H{"liked": liked})
 }
 
-// Unlike removes a like from a memory.
-// DELETE /api/v1/memories/:id/like
+// Unlike godoc
+// @Summary Unlike a memory
+// @Description Remove a like from a memory
+// @Tags interactions
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Memory ID"
+// @Success 200 {object} map[string]bool "Like status"
+// @Failure 400 {object} response.ErrorResponse "Invalid memory ID"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Router /memories/{id}/like [delete]
 func (h *InteractionHandler) Unlike(c *gin.Context) {
 	h.Like(c) // Toggle handles both like and unlike
 }
 
-// Bookmark adds a bookmark to a memory.
-// POST /api/v1/memories/:id/bookmark
+// Bookmark godoc
+// @Summary Bookmark a memory
+// @Description Add a memory to bookmarks
+// @Tags interactions
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Memory ID"
+// @Success 200 {object} map[string]bool "Bookmark status"
+// @Failure 400 {object} response.ErrorResponse "Invalid memory ID"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Router /memories/{id}/bookmark [post]
 func (h *InteractionHandler) Bookmark(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 
@@ -64,8 +96,18 @@ func (h *InteractionHandler) Bookmark(c *gin.Context) {
 	response.Success(c, gin.H{"bookmarked": true})
 }
 
-// Unbookmark removes a bookmark from a memory.
-// DELETE /api/v1/memories/:id/bookmark
+// Unbookmark godoc
+// @Summary Remove bookmark
+// @Description Remove a memory from bookmarks
+// @Tags interactions
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Memory ID"
+// @Success 200 {object} map[string]bool "Bookmark status"
+// @Failure 400 {object} response.ErrorResponse "Invalid memory ID"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Router /memories/{id}/bookmark [delete]
 func (h *InteractionHandler) Unbookmark(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 
@@ -87,8 +129,19 @@ type reportRequest struct {
 	Reason string `json:"reason" binding:"required,max=500"`
 }
 
-// Report reports a memory.
-// POST /api/v1/memories/:id/report
+// Report godoc
+// @Summary Report a memory
+// @Description Report a memory for moderation review
+// @Tags interactions
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Memory ID"
+// @Param request body reportRequest true "Report reason"
+// @Success 200 {object} map[string]string "Report submitted"
+// @Failure 400 {object} response.ErrorResponse "Invalid request"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Router /memories/{id}/report [post]
 func (h *InteractionHandler) Report(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 

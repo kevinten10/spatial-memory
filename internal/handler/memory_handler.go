@@ -13,16 +13,28 @@ import (
 	"github.com/spatial-memory/spatial-memory/internal/service"
 )
 
+// MemoryHandler handles memory endpoints.
 type MemoryHandler struct {
 	memoryService service.MemoryService
 }
 
+// NewMemoryHandler creates a new memory handler.
 func NewMemoryHandler(memoryService service.MemoryService) *MemoryHandler {
 	return &MemoryHandler{memoryService: memoryService}
 }
 
-// Create creates a new memory.
-// POST /api/v1/memories
+// Create godoc
+// @Summary Create a new memory
+// @Description Create a new memory at a geographic location
+// @Tags memories
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body model.CreateMemoryRequest true "Memory data"
+// @Success 201 {object} model.Memory "Created memory"
+// @Failure 400 {object} response.ErrorResponse "Invalid request"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Router /memories [post]
 func (h *MemoryHandler) Create(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 
@@ -45,8 +57,19 @@ func (h *MemoryHandler) Create(c *gin.Context) {
 	response.Created(c, memory)
 }
 
-// Get returns a memory by ID.
-// GET /api/v1/memories/:id
+// Get godoc
+// @Summary Get a memory by ID
+// @Description Get a memory's details by its ID
+// @Tags memories
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Memory ID"
+// @Success 200 {object} model.Memory "Memory details"
+// @Failure 400 {object} response.ErrorResponse "Invalid memory ID"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 404 {object} response.ErrorResponse "Memory not found"
+// @Router /memories/{id} [get]
 func (h *MemoryHandler) Get(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 
@@ -73,8 +96,21 @@ func (h *MemoryHandler) Get(c *gin.Context) {
 	response.Success(c, memory)
 }
 
-// Update updates a memory.
-// PUT /api/v1/memories/:id
+// Update godoc
+// @Summary Update a memory
+// @Description Update a memory's title, content, or visibility
+// @Tags memories
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Memory ID"
+// @Param request body model.UpdateMemoryRequest true "Update fields"
+// @Success 200 {object} model.Memory "Updated memory"
+// @Failure 400 {object} response.ErrorResponse "Invalid request"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 403 {object} response.ErrorResponse "Forbidden"
+// @Failure 404 {object} response.ErrorResponse "Memory not found"
+// @Router /memories/{id} [put]
 func (h *MemoryHandler) Update(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 
@@ -104,8 +140,19 @@ func (h *MemoryHandler) Update(c *gin.Context) {
 	response.Success(c, memory)
 }
 
-// Delete deletes a memory.
-// DELETE /api/v1/memories/:id
+// Delete godoc
+// @Summary Delete a memory
+// @Description Soft delete a memory by ID
+// @Tags memories
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Memory ID"
+// @Success 200 {object} map[string]string "Deleted successfully"
+// @Failure 400 {object} response.ErrorResponse "Invalid memory ID"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 403 {object} response.ErrorResponse "Forbidden"
+// @Router /memories/{id} [delete]
 func (h *MemoryHandler) Delete(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 
@@ -128,8 +175,18 @@ func (h *MemoryHandler) Delete(c *gin.Context) {
 	response.Success(c, gin.H{"message": "deleted"})
 }
 
-// ListMine returns the authenticated user's memories.
-// GET /api/v1/memories/mine
+// ListMine godoc
+// @Summary List user's memories
+// @Description Get a paginated list of the authenticated user's memories
+// @Tags memories
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param page query int false "Page number (default: 1)"
+// @Param page_size query int false "Items per page (default: 20)"
+// @Success 200 {object} response.PaginatedResponse "List of memories"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Router /memories/mine [get]
 func (h *MemoryHandler) ListMine(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 
@@ -145,8 +202,23 @@ func (h *MemoryHandler) ListMine(c *gin.Context) {
 	response.Paginated(c, memories, total, page, pageSize)
 }
 
-// Nearby returns memories near a location.
-// GET /api/v1/memories/nearby?lat=&lng=&radius=&sort=&limit=
+// Nearby godoc
+// @Summary Find nearby memories
+// @Description Find memories near a geographic location
+// @Tags memories
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param lat query number true "Latitude (-90 to 90)"
+// @Param lng query number true "Longitude (-180 to 180)"
+// @Param radius query int false "Search radius in meters (default: 1000, max: 50000)"
+// @Param sort query string false "Sort by: distance, recent, popular (default: distance)"
+// @Param limit query int false "Maximum results (default: 20, max: 100)"
+// @Param cluster query bool false "Enable clustering for large result sets"
+// @Success 200 {array} model.Memory "List of nearby memories"
+// @Failure 400 {object} response.ErrorResponse "Invalid query parameters"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Router /memories/nearby [get]
 func (h *MemoryHandler) Nearby(c *gin.Context) {
 	var query model.NearbyQuery
 	if err := c.ShouldBindQuery(&query); err != nil {

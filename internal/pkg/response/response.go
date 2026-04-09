@@ -6,18 +6,33 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Response is the standard API response structure.
 type Response struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
+	Code    int         `json:"code" example:"0"`
+	Message string      `json:"message" example:"success"`
 	Data    interface{} `json:"data,omitempty"`
 }
 
+// ErrorResponse represents an error response.
+type ErrorResponse struct {
+	Code    int    `json:"code" example:"40000"`
+	Message string `json:"message" example:"invalid request"`
+}
+
+// PaginatedResponse represents a paginated response.
+type PaginatedResponse struct {
+	Code    int           `json:"code" example:"0"`
+	Message string        `json:"message" example:"success"`
+	Data    PaginatedData `json:"data"`
+}
+
+// PaginatedData contains pagination information.
 type PaginatedData struct {
 	Items      interface{} `json:"items"`
-	Total      int64       `json:"total"`
-	Page       int         `json:"page"`
-	PageSize   int         `json:"page_size"`
-	TotalPages int         `json:"total_pages"`
+	Total      int64       `json:"total" example:"100"`
+	Page       int         `json:"page" example:"1"`
+	PageSize   int         `json:"page_size" example:"20"`
+	TotalPages int         `json:"total_pages" example:"5"`
 }
 
 func Success(c *gin.Context, data interface{}) {

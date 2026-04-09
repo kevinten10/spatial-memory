@@ -13,16 +13,27 @@ import (
 	"github.com/spatial-memory/spatial-memory/internal/repository"
 )
 
+// UserHandler handles user profile endpoints.
 type UserHandler struct {
 	userRepo repository.UserRepository
 }
 
+// NewUserHandler creates a new user handler.
 func NewUserHandler(userRepo repository.UserRepository) *UserHandler {
 	return &UserHandler{userRepo: userRepo}
 }
 
-// GetMe returns the authenticated user's profile.
-// GET /api/v1/users/me
+// GetMe godoc
+// @Summary Get current user profile
+// @Description Get the authenticated user's profile information
+// @Tags users
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} model.User "User profile"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 500 {object} response.ErrorResponse "Server error"
+// @Router /users/me [get]
 func (h *UserHandler) GetMe(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 
@@ -39,8 +50,18 @@ func (h *UserHandler) GetMe(c *gin.Context) {
 	response.Success(c, user)
 }
 
-// UpdateMe updates the authenticated user's profile.
-// PUT /api/v1/users/me
+// UpdateMe godoc
+// @Summary Update current user profile
+// @Description Update the authenticated user's profile information
+// @Tags users
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param request body model.UpdateUserRequest true "Update fields"
+// @Success 200 {object} model.User "Updated user profile"
+// @Failure 400 {object} response.ErrorResponse "Invalid request"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Router /users/me [put]
 func (h *UserHandler) UpdateMe(c *gin.Context) {
 	userID := middleware.GetUserID(c)
 
@@ -74,8 +95,19 @@ func (h *UserHandler) UpdateMe(c *gin.Context) {
 	response.Success(c, user)
 }
 
-// GetUser returns a public user profile by ID.
-// GET /api/v1/users/:id
+// GetUser godoc
+// @Summary Get public user profile
+// @Description Get a public user profile by ID
+// @Tags users
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "User ID"
+// @Success 200 {object} model.UserProfile "Public user profile"
+// @Failure 400 {object} response.ErrorResponse "Invalid user ID"
+// @Failure 401 {object} response.ErrorResponse "Unauthorized"
+// @Failure 404 {object} response.ErrorResponse "User not found"
+// @Router /users/{id} [get]
 func (h *UserHandler) GetUser(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := strconv.ParseInt(idStr, 10, 64)

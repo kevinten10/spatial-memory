@@ -57,22 +57,34 @@ type Memory struct {
 	DistanceMeters float64      `json:"distance_meters,omitempty"`
 }
 
+// MediaStatus represents the state of a media file.
+type MediaStatus int
+
+const (
+	MediaStatusDeleted MediaStatus = 0
+	MediaStatusActive  MediaStatus = 1
+)
+
 // MemoryMedia represents a photo, video, or voice attachment.
 type MemoryMedia struct {
-	ID           int64     `json:"id"`
-	MemoryID     int64     `json:"memory_id"`
-	UserID       int64     `json:"user_id"`
-	MediaType    MediaType `json:"media_type"`
-	StorageKey   string    `json:"-"`
-	URL          string    `json:"url"`
-	ContentHash  string    `json:"-"`
-	FileSize     int64     `json:"file_size"`
-	MimeType     string    `json:"mime_type"`
-	Duration     int       `json:"duration,omitempty"`
-	Width        int       `json:"width,omitempty"`
-	Height       int       `json:"height,omitempty"`
-	SortOrder    int       `json:"sort_order"`
-	CreatedAt    time.Time `json:"created_at"`
+	ID              int64       `json:"id"`
+	MemoryID        int64       `json:"memory_id"`
+	UserID          int64       `json:"user_id,omitempty"`
+	MediaType       MediaType   `json:"media_type"`
+	StorageKey      string      `json:"-"`
+	URL             string      `json:"url"`
+	ContentHash     string      `json:"-"`
+	FileSize        int64       `json:"file_size"`                    // Alias for SizeBytes
+	SizeBytes       int64       `json:"size_bytes"`                   // DB field
+	MimeType        string      `json:"mime_type"`
+	Duration        int         `json:"duration,omitempty"`           // Alias for DurationSeconds
+	DurationSeconds int         `json:"duration_seconds,omitempty"`   // DB field
+	Width           int         `json:"width,omitempty"`
+	Height          int         `json:"height,omitempty"`
+	SortOrder       int         `json:"sort_order"`
+	Status          MediaStatus `json:"-"`
+	CreatedAt       time.Time   `json:"created_at"`
+	UpdatedAt       time.Time   `json:"updated_at,omitempty"`
 }
 
 // --- Request / Response DTOs ---

@@ -1,0 +1,1907 @@
+basePath: /api/v1
+definitions:
+  handler.reportRequest:
+    properties:
+      reason:
+        maxLength: 500
+        type: string
+    required:
+    - reason
+    type: object
+  model.AddMemberRequest:
+    properties:
+      user_id:
+        type: integer
+    required:
+    - user_id
+    type: object
+  model.CircleMember:
+    properties:
+      circle_id:
+        type: integer
+      id:
+        type: integer
+      joined_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.ConfirmUploadRequest:
+    properties:
+      content_hash:
+        type: string
+      storage_key:
+        type: string
+    required:
+    - content_hash
+    - storage_key
+    type: object
+  model.CreateCircleRequest:
+    properties:
+      description:
+        maxLength: 200
+        type: string
+      name:
+        maxLength: 50
+        minLength: 1
+        type: string
+    required:
+    - name
+    type: object
+  model.CreateMemoryRequest:
+    properties:
+      address:
+        maxLength: 500
+        type: string
+      content:
+        maxLength: 5000
+        type: string
+      location:
+        $ref: '#/definitions/model.GeoPoint'
+      title:
+        maxLength: 200
+        type: string
+      visibility:
+        allOf:
+        - $ref: '#/definitions/model.Visibility'
+        maximum: 2
+        minimum: 0
+    required:
+    - location
+    - title
+    type: object
+  model.FriendCircle:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      member_count:
+        type: integer
+      name:
+        type: string
+      owner_id:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  model.GeoPoint:
+    properties:
+      lat:
+        type: number
+      lng:
+        type: number
+    required:
+    - lat
+    - lng
+    type: object
+  model.ManualReviewRequest:
+    properties:
+      approved:
+        type: boolean
+      note:
+        maxLength: 500
+        type: string
+    required:
+    - approved
+    type: object
+  model.MediaType:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - MediaTypePhoto
+    - MediaTypeVideo
+    - MediaTypeVoice
+  model.Memory:
+    properties:
+      address:
+        type: string
+      bookmark_count:
+        type: integer
+      content:
+        type: string
+      created_at:
+        type: string
+      distance_meters:
+        type: number
+      id:
+        type: integer
+      is_bookmarked:
+        type: boolean
+      is_liked:
+        type: boolean
+      like_count:
+        type: integer
+      location:
+        $ref: '#/definitions/model.GeoPoint'
+      media:
+        items:
+          $ref: '#/definitions/model.MemoryMedia'
+        type: array
+      status:
+        $ref: '#/definitions/model.MemoryStatus'
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      view_count:
+        type: integer
+      visibility:
+        $ref: '#/definitions/model.Visibility'
+    type: object
+  model.MemoryMedia:
+    properties:
+      created_at:
+        type: string
+      duration:
+        description: Alias for DurationSeconds
+        type: integer
+      duration_seconds:
+        description: DB field
+        type: integer
+      file_size:
+        description: Alias for SizeBytes
+        type: integer
+      height:
+        type: integer
+      id:
+        type: integer
+      media_type:
+        $ref: '#/definitions/model.MediaType'
+      memory_id:
+        type: integer
+      mime_type:
+        type: string
+      size_bytes:
+        description: DB field
+        type: integer
+      sort_order:
+        type: integer
+      updated_at:
+        type: string
+      url:
+        type: string
+      user_id:
+        type: integer
+      width:
+        type: integer
+    type: object
+  model.MemoryStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-varnames:
+    - MemoryStatusDeleted
+    - MemoryStatusActive
+    - MemoryStatusPendingReview
+    - MemoryStatusRejected
+  model.ModerationItem:
+    properties:
+      ai_categories:
+        items:
+          type: string
+        type: array
+      ai_safe_score:
+        type: number
+      created_at:
+        type: string
+      id:
+        type: integer
+      memory_content:
+        type: string
+      memory_id:
+        type: integer
+      memory_title:
+        description: Joined fields
+        type: string
+      report_count:
+        type: integer
+      review_note:
+        type: string
+      reviewed_at:
+        type: string
+      reviewer_id:
+        type: integer
+      status:
+        $ref: '#/definitions/model.ModerationStatus'
+      user_id:
+        type: integer
+      user_nickname:
+        type: string
+    type: object
+  model.ModerationStats:
+    properties:
+      approved_count:
+        type: integer
+      escalated_count:
+        type: integer
+      pending_count:
+        type: integer
+      rejected_count:
+        type: integer
+      total_count:
+        type: integer
+    type: object
+  model.ModerationStatus:
+    enum:
+    - 0
+    - 1
+    - 2
+    - 3
+    type: integer
+    x-enum-varnames:
+    - ModerationStatusPending
+    - ModerationStatusApproved
+    - ModerationStatusRejected
+    - ModerationStatusEscalated
+  model.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  model.SendSMSRequest:
+    properties:
+      phone:
+        type: string
+    required:
+    - phone
+    type: object
+  model.TokenPair:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        description: seconds until access token expires
+        type: integer
+      refresh_token:
+        type: string
+    type: object
+  model.UpdateCircleRequest:
+    properties:
+      description:
+        maxLength: 200
+        type: string
+      name:
+        maxLength: 50
+        minLength: 1
+        type: string
+    type: object
+  model.UpdateMemoryRequest:
+    properties:
+      content:
+        maxLength: 5000
+        type: string
+      title:
+        maxLength: 200
+        type: string
+      visibility:
+        allOf:
+        - $ref: '#/definitions/model.Visibility'
+        maximum: 2
+        minimum: 0
+    type: object
+  model.UpdateUserRequest:
+    properties:
+      avatar_url:
+        type: string
+      bio:
+        maxLength: 500
+        type: string
+      nickname:
+        maxLength: 50
+        type: string
+    type: object
+  model.UploadRequest:
+    properties:
+      content_hash:
+        description: SHA-256 hex
+        type: string
+      content_type:
+        type: string
+      duration:
+        description: seconds, for video/voice
+        type: integer
+      file_size:
+        type: integer
+      height:
+        type: integer
+      media_type:
+        allOf:
+        - $ref: '#/definitions/model.MediaType'
+        maximum: 2
+        minimum: 0
+      memory_id:
+        type: integer
+      width:
+        type: integer
+    required:
+    - content_hash
+    - content_type
+    - file_size
+    - memory_id
+    type: object
+  model.UploadResponse:
+    properties:
+      content_hash:
+        type: string
+      existing_url:
+        type: string
+      expires_in:
+        description: seconds
+        type: integer
+      is_duplicate:
+        description: if true, file already exists
+        type: boolean
+      storage_key:
+        type: string
+      upload_url:
+        type: string
+    type: object
+  model.User:
+    properties:
+      avatar_url:
+        type: string
+      bio:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_admin:
+        type: boolean
+      nickname:
+        type: string
+      phone:
+        type: string
+      status:
+        $ref: '#/definitions/model.UserStatus'
+      updated_at:
+        type: string
+    type: object
+  model.UserProfile:
+    properties:
+      avatar_url:
+        type: string
+      bio:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      nickname:
+        type: string
+    type: object
+  model.UserStatus:
+    enum:
+    - 0
+    - 1
+    type: integer
+    x-enum-varnames:
+    - UserStatusBanned
+    - UserStatusActive
+  model.VerifySMSRequest:
+    properties:
+      code:
+        type: string
+      phone:
+        type: string
+    required:
+    - code
+    - phone
+    type: object
+  model.Visibility:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - VisibilityPrivate
+    - VisibilityCircle
+    - VisibilityPublic
+  model.WeChatLoginRequest:
+    properties:
+      code:
+        type: string
+    required:
+    - code
+    type: object
+  response.ErrorResponse:
+    properties:
+      code:
+        example: 40000
+        type: integer
+      message:
+        example: invalid request
+        type: string
+    type: object
+  response.PaginatedData:
+    properties:
+      items: {}
+      page:
+        example: 1
+        type: integer
+      page_size:
+        example: 20
+        type: integer
+      total:
+        example: 100
+        type: integer
+      total_pages:
+        example: 5
+        type: integer
+    type: object
+  response.PaginatedResponse:
+    properties:
+      code:
+        example: 0
+        type: integer
+      data:
+        $ref: '#/definitions/response.PaginatedData'
+      message:
+        example: success
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@spatial-memory.app
+    name: API Support
+    url: https://github.com/spatial-memory/spatial-memory/issues
+  description: Backend API for Spatial Memory Network - an AR app that lets users
+    pin multimedia memories to real-world geographic locations.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Spatial Memory Network API
+  version: "1.0"
+paths:
+  /admin/moderation/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a single moderation item by ID
+      parameters:
+      - description: Moderation item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Moderation item
+          schema:
+            $ref: '#/definitions/model.ModerationItem'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden - Admin only
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Item not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get moderation item
+      tags:
+      - admin
+  /admin/moderation/{id}/review:
+    put:
+      consumes:
+      - application/json
+      description: Manually approve or reject a moderation item
+      parameters:
+      - description: Moderation item ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Review decision
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.ManualReviewRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Review processed
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden - Admin only
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Item not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Manual review
+      tags:
+      - admin
+  /admin/moderation/queue:
+    get:
+      consumes:
+      - application/json
+      description: Get the list of memories pending moderation review
+      parameters:
+      - description: 'Filter by status: pending, approved, rejected'
+        in: query
+        name: status
+        type: string
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 20)'
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Moderation queue
+          schema:
+            $ref: '#/definitions/response.PaginatedResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden - Admin only
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List moderation queue
+      tags:
+      - admin
+  /admin/moderation/stats:
+    get:
+      consumes:
+      - application/json
+      description: Get statistics about the moderation queue
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Moderation statistics
+          schema:
+            $ref: '#/definitions/model.ModerationStats'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden - Admin only
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get moderation statistics
+      tags:
+      - admin
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Revoke the refresh token and logout
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logged out successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Logout user
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Get a new access token using a refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: New tokens
+          schema:
+            $ref: '#/definitions/model.TokenPair'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Invalid refresh token
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Refresh access token
+      tags:
+      - auth
+  /auth/sms/send:
+    post:
+      consumes:
+      - application/json
+      description: Send a 6-digit verification code to the given phone number
+      parameters:
+      - description: Phone number
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.SendSMSRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Code sent successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid phone number
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "429":
+          description: Rate limit exceeded
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Send SMS verification code
+      tags:
+      - auth
+  /auth/sms/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verify the SMS code and return access/refresh tokens
+      parameters:
+      - description: Phone and code
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.VerifySMSRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            $ref: '#/definitions/model.TokenPair'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Invalid code
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Verify SMS code and login
+      tags:
+      - auth
+  /auth/wechat:
+    post:
+      consumes:
+      - application/json
+      description: Login using WeChat authorization code
+      parameters:
+      - description: WeChat auth code
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.WeChatLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            $ref: '#/definitions/model.TokenPair'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: WeChat login failed
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: WeChat OAuth login
+      tags:
+      - auth
+  /circles:
+    post:
+      consumes:
+      - application/json
+      description: Create a new friend circle for sharing memories
+      parameters:
+      - description: Circle data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateCircleRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created circle
+          schema:
+            $ref: '#/definitions/model.FriendCircle'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Max circles limit reached
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a friend circle
+      tags:
+      - circles
+  /circles/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a friend circle
+      parameters:
+      - description: Circle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Deleted successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid circle ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a circle
+      tags:
+      - circles
+    get:
+      consumes:
+      - application/json
+      description: Get a friend circle's details
+      parameters:
+      - description: Circle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Circle details
+          schema:
+            $ref: '#/definitions/model.FriendCircle'
+        "400":
+          description: Invalid circle ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Circle not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a circle by ID
+      tags:
+      - circles
+    put:
+      consumes:
+      - application/json
+      description: Update a circle's name or description
+      parameters:
+      - description: Circle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update fields
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateCircleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated circle
+          schema:
+            $ref: '#/definitions/model.FriendCircle'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a circle
+      tags:
+      - circles
+  /circles/{id}/members:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of members in a circle
+      parameters:
+      - description: Circle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 20)'
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of members
+          schema:
+            items:
+              $ref: '#/definitions/model.CircleMember'
+            type: array
+        "400":
+          description: Invalid circle ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List circle members
+      tags:
+      - circles
+    post:
+      consumes:
+      - application/json
+      description: Add a user to a friend circle
+      parameters:
+      - description: Circle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User ID to add
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddMemberRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Member added
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "409":
+          description: Max members limit reached
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Add member to circle
+      tags:
+      - circles
+  /circles/{id}/members/{user_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a user from a friend circle
+      parameters:
+      - description: Circle ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User ID to remove
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Member removed
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid IDs
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove member from circle
+      tags:
+      - circles
+  /circles/joined:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of circles the user is a member of
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 20)'
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of circles
+          schema:
+            items:
+              $ref: '#/definitions/model.FriendCircle'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List joined circles
+      tags:
+      - circles
+  /circles/mine:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of circles owned by the current user
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 20)'
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of circles
+          schema:
+            items:
+              $ref: '#/definitions/model.FriendCircle'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List my circles
+      tags:
+      - circles
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Check the health status of the API and its dependencies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: API is healthy
+          schema:
+            additionalProperties: true
+            type: object
+        "503":
+          description: Service unavailable
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Health check
+      tags:
+      - health
+  /memories:
+    post:
+      consumes:
+      - application/json
+      description: Create a new memory at a geographic location
+      parameters:
+      - description: Memory data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateMemoryRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created memory
+          schema:
+            $ref: '#/definitions/model.Memory'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new memory
+      tags:
+      - memories
+  /memories/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Soft delete a memory by ID
+      parameters:
+      - description: Memory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Deleted successfully
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid memory ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a memory
+      tags:
+      - memories
+    get:
+      consumes:
+      - application/json
+      description: Get a memory's details by its ID
+      parameters:
+      - description: Memory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Memory details
+          schema:
+            $ref: '#/definitions/model.Memory'
+        "400":
+          description: Invalid memory ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Memory not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get a memory by ID
+      tags:
+      - memories
+    put:
+      consumes:
+      - application/json
+      description: Update a memory's title, content, or visibility
+      parameters:
+      - description: Memory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update fields
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateMemoryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated memory
+          schema:
+            $ref: '#/definitions/model.Memory'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Memory not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a memory
+      tags:
+      - memories
+  /memories/{id}/bookmark:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a memory from bookmarks
+      parameters:
+      - description: Memory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Bookmark status
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Invalid memory ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Remove bookmark
+      tags:
+      - interactions
+    post:
+      consumes:
+      - application/json
+      description: Add a memory to bookmarks
+      parameters:
+      - description: Memory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Bookmark status
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Invalid memory ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Bookmark a memory
+      tags:
+      - interactions
+  /memories/{id}/grant/circle:
+    post:
+      consumes:
+      - application/json
+      description: Grant access to a memory for all members of a circle
+      parameters:
+      - description: Memory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Circle ID
+        in: body
+        name: request
+        required: true
+        schema:
+          properties:
+            circle_id:
+              type: integer
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Access granted
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Grant circle access
+      tags:
+      - permissions
+  /memories/{id}/grant/user:
+    post:
+      consumes:
+      - application/json
+      description: Grant access to a memory for a specific user
+      parameters:
+      - description: Memory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: User ID
+        in: body
+        name: request
+        required: true
+        schema:
+          properties:
+            user_id:
+              type: integer
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Access granted
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Grant user access
+      tags:
+      - permissions
+  /memories/{id}/like:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a like from a memory
+      parameters:
+      - description: Memory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Like status
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Invalid memory ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Unlike a memory
+      tags:
+      - interactions
+    post:
+      consumes:
+      - application/json
+      description: Add a like to a memory (toggle)
+      parameters:
+      - description: Memory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Like status
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Invalid memory ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Like a memory
+      tags:
+      - interactions
+  /memories/{id}/report:
+    post:
+      consumes:
+      - application/json
+      description: Report a memory for moderation review
+      parameters:
+      - description: Memory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Report reason
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.reportRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Report submitted
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Report a memory
+      tags:
+      - interactions
+  /memories/{id}/revoke:
+    post:
+      consumes:
+      - application/json
+      description: Remove access for a circle or user
+      parameters:
+      - description: Memory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Circle ID or User ID
+        in: body
+        name: request
+        required: true
+        schema:
+          properties:
+            circle_id:
+              type: integer
+            user_id:
+              type: integer
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Access revoked
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Revoke access
+      tags:
+      - permissions
+  /memories/{id}/share:
+    post:
+      consumes:
+      - application/json
+      description: Create a shareable token for accessing a memory
+      parameters:
+      - description: Memory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Expiration time in hours
+        in: body
+        name: request
+        schema:
+          properties:
+            expires_in_hours:
+              type: integer
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Share token
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Generate share token
+      tags:
+      - permissions
+  /memories/mine:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of the authenticated user's memories
+      parameters:
+      - description: 'Page number (default: 1)'
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 20)'
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of memories
+          schema:
+            $ref: '#/definitions/response.PaginatedResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List user's memories
+      tags:
+      - memories
+  /memories/nearby:
+    get:
+      consumes:
+      - application/json
+      description: Find memories near a geographic location
+      parameters:
+      - description: Latitude (-90 to 90)
+        in: query
+        name: lat
+        required: true
+        type: number
+      - description: Longitude (-180 to 180)
+        in: query
+        name: lng
+        required: true
+        type: number
+      - description: 'Search radius in meters (default: 1000, max: 50000)'
+        in: query
+        name: radius
+        type: integer
+      - description: 'Sort by: distance, recent, popular (default: distance)'
+        in: query
+        name: sort
+        type: string
+      - description: 'Maximum results (default: 20, max: 100)'
+        in: query
+        name: limit
+        type: integer
+      - description: Enable clustering for large result sets
+        in: query
+        name: cluster
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of nearby memories
+          schema:
+            items:
+              $ref: '#/definitions/model.Memory'
+            type: array
+        "400":
+          description: Invalid query parameters
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Find nearby memories
+      tags:
+      - memories
+  /uploads/confirm:
+    post:
+      consumes:
+      - application/json
+      description: Confirm that a file has been uploaded to R2 and create media record
+      parameters:
+      - description: Confirm upload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.ConfirmUploadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Upload confirmed
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: Upload not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Confirm upload completion
+      tags:
+      - uploads
+  /uploads/request:
+    post:
+      consumes:
+      - application/json
+      description: Get a pre-signed URL for direct upload to R2 storage
+      parameters:
+      - description: Upload request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UploadRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Pre-signed URL
+          schema:
+            $ref: '#/definitions/model.UploadResponse'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "413":
+          description: File too large
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Request pre-signed upload URL
+      tags:
+      - uploads
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a public user profile by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Public user profile
+          schema:
+            $ref: '#/definitions/model.UserProfile'
+        "400":
+          description: Invalid user ID
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "404":
+          description: User not found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get public user profile
+      tags:
+      - users
+  /users/me:
+    get:
+      consumes:
+      - application/json
+      description: Get the authenticated user's profile information
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User profile
+          schema:
+            $ref: '#/definitions/model.User'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Server error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get current user profile
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update the authenticated user's profile information
+      parameters:
+      - description: Update fields
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Updated user profile
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Invalid request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update current user profile
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

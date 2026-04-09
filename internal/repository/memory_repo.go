@@ -33,6 +33,9 @@ type MemoryRepository interface {
 	IncrementLikes(ctx context.Context, id int64, delta int) error
 	IncrementViews(ctx context.Context, id int64, delta int) error
 	IncrementBookmarks(ctx context.Context, id int64, delta int) error
+
+	// Status management
+	UpdateStatus(ctx context.Context, id int64, status model.MemoryStatus) error
 }
 
 type pgxMemoryRepo struct {
@@ -317,4 +320,15 @@ func (r *pgxMemoryRepo) IncrementBookmarks(ctx context.Context, id int64, delta 
 		delta, id,
 	)
 	return err
+}
+
+func (r *pgxMemoryRepo) UpdateStatus(ctx context.Context, id int64, status model.MemoryStatus) error {
+	_, err := r.pool.Exec(ctx,
+		`UPDATE memories SET status = $1, updated_at = NOW() WHERE id = $2`,
+		status, id,
+	)
+	if err != nil {
+		return fmt.Errorf("update memory status: %w", err)
+	}
+	return nil
 }

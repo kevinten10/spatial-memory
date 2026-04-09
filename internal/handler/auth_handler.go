@@ -11,16 +11,27 @@ import (
 	"github.com/spatial-memory/spatial-memory/internal/service"
 )
 
+// AuthHandler handles authentication endpoints.
 type AuthHandler struct {
 	authService service.AuthService
 }
 
+// NewAuthHandler creates a new auth handler.
 func NewAuthHandler(authService service.AuthService) *AuthHandler {
 	return &AuthHandler{authService: authService}
 }
 
-// SendSMSCode sends a verification code to the given phone number.
-// POST /api/v1/auth/sms/send
+// SendSMSCode godoc
+// @Summary Send SMS verification code
+// @Description Send a 6-digit verification code to the given phone number
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body model.SendSMSRequest true "Phone number"
+// @Success 200 {object} map[string]string "Code sent successfully"
+// @Failure 400 {object} response.ErrorResponse "Invalid phone number"
+// @Failure 429 {object} response.ErrorResponse "Rate limit exceeded"
+// @Router /auth/sms/send [post]
 func (h *AuthHandler) SendSMSCode(c *gin.Context) {
 	var req model.SendSMSRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -40,8 +51,17 @@ func (h *AuthHandler) SendSMSCode(c *gin.Context) {
 	response.Success(c, gin.H{"message": "code sent"})
 }
 
-// VerifySMSCode verifies the code and returns tokens.
-// POST /api/v1/auth/sms/verify
+// VerifySMSCode godoc
+// @Summary Verify SMS code and login
+// @Description Verify the SMS code and return access/refresh tokens
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body model.VerifySMSRequest true "Phone and code"
+// @Success 200 {object} model.TokenPair "Login successful"
+// @Failure 400 {object} response.ErrorResponse "Invalid request"
+// @Failure 401 {object} response.ErrorResponse "Invalid code"
+// @Router /auth/sms/verify [post]
 func (h *AuthHandler) VerifySMSCode(c *gin.Context) {
 	var req model.VerifySMSRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -62,8 +82,17 @@ func (h *AuthHandler) VerifySMSCode(c *gin.Context) {
 	response.Success(c, tokens)
 }
 
-// WeChatLogin handles WeChat OAuth login.
-// POST /api/v1/auth/wechat
+// WeChatLogin godoc
+// @Summary WeChat OAuth login
+// @Description Login using WeChat authorization code
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body model.WeChatLoginRequest true "WeChat auth code"
+// @Success 200 {object} model.TokenPair "Login successful"
+// @Failure 400 {object} response.ErrorResponse "Invalid request"
+// @Failure 401 {object} response.ErrorResponse "WeChat login failed"
+// @Router /auth/wechat [post]
 func (h *AuthHandler) WeChatLogin(c *gin.Context) {
 	var req model.WeChatLoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -84,8 +113,17 @@ func (h *AuthHandler) WeChatLogin(c *gin.Context) {
 	response.Success(c, tokens)
 }
 
-// RefreshTokens refreshes the access token using a refresh token.
-// POST /api/v1/auth/refresh
+// RefreshTokens godoc
+// @Summary Refresh access token
+// @Description Get a new access token using a refresh token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body model.RefreshTokenRequest true "Refresh token"
+// @Success 200 {object} model.TokenPair "New tokens"
+// @Failure 400 {object} response.ErrorResponse "Invalid request"
+// @Failure 401 {object} response.ErrorResponse "Invalid refresh token"
+// @Router /auth/refresh [post]
 func (h *AuthHandler) RefreshTokens(c *gin.Context) {
 	var req model.RefreshTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -106,8 +144,16 @@ func (h *AuthHandler) RefreshTokens(c *gin.Context) {
 	response.Success(c, tokens)
 }
 
-// Logout revokes the refresh token.
-// POST /api/v1/auth/logout
+// Logout godoc
+// @Summary Logout user
+// @Description Revoke the refresh token and logout
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body model.RefreshTokenRequest true "Refresh token"
+// @Success 200 {object} map[string]string "Logged out successfully"
+// @Failure 400 {object} response.ErrorResponse "Invalid request"
+// @Router /auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	var req model.RefreshTokenRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
