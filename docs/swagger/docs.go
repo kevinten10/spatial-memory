@@ -2947,8 +2947,6 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "Backend API for Spatial Memory Network - an AR app that lets users pin multimedia memories to real-world geographic locations.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
-	LeftDelim:        "{{",
-	RightDelim:       "}}",
 }
 
 func init() {
