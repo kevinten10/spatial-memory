@@ -32,6 +32,10 @@ func InitApp() {
 		return
 	}
 
+	// Serverless: override pool settings for Supavisor transaction mode
+	cfg.Database.MinConns = 0
+	cfg.Database.MaxConns = 2
+
 	ctx := context.Background()
 
 	dbPool, err := database.NewPostgresPool(ctx, cfg.Database)
