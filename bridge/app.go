@@ -20,6 +20,7 @@ import (
 )
 
 var GinEngine *gin.Engine
+var initError string
 
 func InitApp() {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
@@ -40,6 +41,7 @@ func InitApp() {
 
 	dbPool, err := database.NewPostgresPool(ctx, cfg.Database)
 	if err != nil {
+		initError = err.Error()
 		log.Error().Err(err).Msg("failed to connect to PostgreSQL, starting in degraded mode")
 		setupDegraded()
 		return
@@ -104,7 +106,7 @@ func setupDegraded() {
 	GinEngine = gin.New()
 	GinEngine.Use(gin.Recovery())
 	GinEngine.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"status": "degraded", "error": "database unavailable"})
+		c.JSON(http.StatusServiceUnavailable, gin.H{"status": "degraded", "error": initError})
 	})
 	GinEngine.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "service temporarily unavailable"})
