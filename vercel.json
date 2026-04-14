@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.go",
+      "use": "@vercel/go"
+    }
+  ],
+  "routes": [
+    { "src": "/health", "dest": "/api/index" },
+    { "src": "/(.*)", "dest": "/api/index" }
+  ]
+}

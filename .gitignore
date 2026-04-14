@@ -39,3 +39,4 @@ tmp/
 # Docker volumes
 pgdata/
 redisdata/
+.vercel

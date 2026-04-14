@@ -43,6 +43,7 @@ type RedisConfig struct {
 	Port     int    `mapstructure:"port"`
 	Password string `mapstructure:"password"`
 	DB       int    `mapstructure:"db"`
+	Enabled  bool   `mapstructure:"enabled"`
 }
 
 type R2Config struct {
@@ -114,6 +115,7 @@ func Load() (*Config, error) {
 			Port:     viper.GetInt("redis.port"),
 			Password: viper.GetString("redis.password"),
 			DB:       viper.GetInt("redis.db"),
+			Enabled:  viper.GetBool("redis.enabled"),
 		},
 		R2: R2Config{
 			AccountID:       viper.GetString("r2.account_id"),
@@ -167,6 +169,7 @@ func setDefaults() {
 	viper.SetDefault("redis.port", 6379)
 	viper.SetDefault("redis.password", "")
 	viper.SetDefault("redis.db", 0)
+	viper.SetDefault("redis.enabled", true)
 
 	viper.SetDefault("jwt.secret", "change-me-in-production")
 	viper.SetDefault("jwt.access_expiration", 2*time.Hour)

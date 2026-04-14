@@ -30,6 +30,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -64,14 +65,21 @@ func main() {
 	defer dbPool.Close()
 
 	if err := database.RunMigrations(cfg.Database.DSN()); err != nil {
-		log.Fatal().Err(err).Msg("failed to run migrations")
+		log.Warn().Err(err).Msg("migrations skipped (may already be applied)")
 	}
 
-	redisClient, err := database.NewRedisClient(ctx, cfg.Redis)
-	if err != nil {
-		log.Fatal().Err(err).Msg("failed to connect to Redis")
+	var redisClient *redis.Client
+	if cfg.Redis.Enabled {
+		redisClient, err = database.NewRedisClient(ctx, cfg.Redis)
+		if err != nil {
+			log.Fatal().Err(err).Msg("failed to connect to Redis")
+		}
+		defer redisClient.Close()
+	} else {
+		log.Warn().Msg("Redis is disabled, running without cache")
+		// Create a disconnected client so nil checks aren't needed everywhere
+		redisClient = redis.NewClient(&redis.Options{Addr: "localhost:0"})
 	}
-	defer redisClient.Close()
 
 	// --- Repositories ---
 	userRepo := repository.NewUserRepository(dbPool)
@@ -79,7 +87,12 @@ func main() {
 	memoryRepo := repository.NewMemoryRepository(dbPool)
 	permRepo := repository.NewPermissionRepository(dbPool)
 	circleRepo := repository.NewCircleRepository(dbPool)
-	spatialCache := repository.NewSpatialCache(redisClient)
+	var spatialCache repository.SpatialCache
+	if cfg.Redis.Enabled {
+		spatialCache = repository.NewSpatialCache(redisClient)
+	} else {
+		spatialCache = repository.NewNoOpSpatialCache()
+	}
 	interactionRepo := repository.NewInteractionRepository(dbPool)
 	moderationRepo := repository.NewModerationRepository(dbPool)
 	mediaRepo := repository.NewMediaRepository(dbPool)

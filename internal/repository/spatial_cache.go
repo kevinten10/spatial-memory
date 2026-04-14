@@ -114,3 +114,28 @@ func (c *redisSpatialCache) Invalidate(ctx context.Context, lat, lng float64, ra
 
 // Ensure redisSpatialCache implements SpatialCache
 var _ SpatialCache = (*redisSpatialCache)(nil)
+
+// noOpSpatialCache is a no-op cache used when Redis is unavailable.
+type noOpSpatialCache struct{}
+
+func NewNoOpSpatialCache() SpatialCache {
+	return &noOpSpatialCache{}
+}
+
+func (c *noOpSpatialCache) AddMemory(_ context.Context, _ int64, _, _ float64) error {
+	return nil
+}
+
+func (c *noOpSpatialCache) RemoveMemory(_ context.Context, _ int64) error {
+	return nil
+}
+
+func (c *noOpSpatialCache) SearchNearby(_ context.Context, _, _ float64, _ int) ([]int64, error) {
+	return nil, nil
+}
+
+func (c *noOpSpatialCache) Invalidate(_ context.Context, _, _ float64, _ int) error {
+	return nil
+}
+
+var _ SpatialCache = (*noOpSpatialCache)(nil)
