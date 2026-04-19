@@ -38,9 +38,14 @@ func InitApp() {
 	cfg.Database.MinConns = 0
 	cfg.Database.MaxConns = 2
 
-	// Auto-detect Supabase pooler: use port 6543 if host contains "pooler" and port is 0/5432
-	if strings.Contains(cfg.Database.Host, "pooler") && cfg.Database.Port != 6543 {
-		cfg.Database.Port = 6543
+	// Auto-detect Supabase pooler: switch to direct connection since pooler
+	// doesn't support custom roles. Direct connection uses the project DB host.
+	if strings.Contains(cfg.Database.Host, "pooler.supabase.com") {
+		parts := strings.Split(cfg.Database.User, ".")
+		projectRef := parts[len(parts)-1]
+		cfg.Database.Host = "db." + projectRef + ".supabase.co"
+		cfg.Database.Port = 5432
+		log.Info().Str("host", cfg.Database.Host).Msg("switched to Supabase direct connection")
 	}
 
 	ctx := context.Background()
