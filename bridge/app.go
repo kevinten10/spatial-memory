@@ -38,14 +38,16 @@ func InitApp() {
 	cfg.Database.MinConns = 0
 	cfg.Database.MaxConns = 2
 
-	// Auto-detect Supabase pooler: switch to direct connection since pooler
-	// doesn't support custom roles. Direct connection uses the project DB host.
+	// Supabase pooler: replace custom role with postgres role for Supavisor
+	// Supavisor only authenticates the postgres role; extract project ref from username
 	if strings.Contains(cfg.Database.Host, "pooler.supabase.com") {
 		parts := strings.Split(cfg.Database.User, ".")
-		projectRef := parts[len(parts)-1]
-		cfg.Database.Host = "db." + projectRef + ".supabase.co"
-		cfg.Database.Port = 5432
-		log.Info().Str("host", cfg.Database.Host).Msg("switched to Supabase direct connection")
+		if len(parts) >= 2 {
+			projectRef := parts[len(parts)-1]
+			cfg.Database.User = "postgres." + projectRef
+			cfg.Database.Port = 5432 // session mode
+		}
+		log.Info().Str("host", cfg.Database.Host).Str("user", cfg.Database.User).Int("port", cfg.Database.Port).Msg("using Supabase session pooler with postgres role")
 	}
 
 	ctx := context.Background()
