@@ -3,6 +3,8 @@ package config
 import (
 	"fmt"
 	"net/url"
+	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -95,38 +97,38 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		Server: ServerConfig{
-			Port:         viper.GetInt("server.port"),
+			Port:         envInt("SPATIAL_SERVER_PORT", viper.GetInt("server.port")),
 			ReadTimeout:  viper.GetDuration("server.read_timeout"),
 			WriteTimeout: viper.GetDuration("server.write_timeout"),
-			Mode:         viper.GetString("server.mode"),
+			Mode:         envStr("SPATIAL_SERVER_MODE"),
 		},
 		Database: DatabaseConfig{
-			Host:            viper.GetString("database.host"),
-			Port:            viper.GetInt("database.port"),
-			User:            viper.GetString("database.user"),
-			Password:        viper.GetString("database.password"),
-			DBName:          viper.GetString("database.dbname"),
-			SSLMode:         viper.GetString("database.sslmode"),
-			MinConns:        int32(viper.GetInt("database.min_conns")),
-			MaxConns:        int32(viper.GetInt("database.max_conns")),
+			Host:     envStr("SPATIAL_DATABASE_HOST"),
+			Port:     envInt("SPATIAL_DATABASE_PORT", 5432),
+			User:     envStr("SPATIAL_DATABASE_USER"),
+			Password: envStr("SPATIAL_DATABASE_PASSWORD"),
+			DBName:   envStr("SPATIAL_DATABASE_DBNAME"),
+			SSLMode:  envStr("SPATIAL_DATABASE_SSLMODE"),
+			MinConns: int32(envInt("SPATIAL_DATABASE_MIN_CONNS", viper.GetInt("database.min_conns"))),
+			MaxConns: int32(envInt("SPATIAL_DATABASE_MAX_CONNS", viper.GetInt("database.max_conns"))),
 			MaxConnLifetime: viper.GetDuration("database.max_conn_lifetime"),
 		},
 		Redis: RedisConfig{
-			Host:     viper.GetString("redis.host"),
-			Port:     viper.GetInt("redis.port"),
-			Password: viper.GetString("redis.password"),
-			DB:       viper.GetInt("redis.db"),
+			Host:     envStr("SPATIAL_REDIS_HOST"),
+			Port:     envInt("SPATIAL_REDIS_PORT", 6379),
+			Password: envStr("SPATIAL_REDIS_PASSWORD"),
+			DB:       envInt("SPATIAL_REDIS_DB", 0),
 			Enabled:  viper.GetBool("redis.enabled"),
 		},
 		R2: R2Config{
-			AccountID:       viper.GetString("r2.account_id"),
-			AccessKeyID:     viper.GetString("r2.access_key_id"),
-			AccessKeySecret: viper.GetString("r2.access_key_secret"),
-			Bucket:          viper.GetString("r2.bucket"),
-			PublicURL:       viper.GetString("r2.public_url"),
+			AccountID:       envStr("SPATIAL_R2_ACCOUNT_ID"),
+			AccessKeyID:     envStr("SPATIAL_R2_ACCESS_KEY_ID"),
+			AccessKeySecret: envStr("SPATIAL_R2_ACCESS_KEY_SECRET"),
+			Bucket:          envStr("SPATIAL_R2_BUCKET"),
+			PublicURL:       envStr("SPATIAL_R2_PUBLIC_URL"),
 		},
 		JWT: JWTConfig{
-			Secret:            viper.GetString("jwt.secret"),
+			Secret:            envStr("SPATIAL_JWT_SECRET"),
 			AccessExpiration:  viper.GetDuration("jwt.access_expiration"),
 			RefreshExpiration: viper.GetDuration("jwt.refresh_expiration"),
 		},
@@ -192,4 +194,23 @@ func (d DatabaseConfig) DSN() string {
 
 func (r RedisConfig) Addr() string {
 	return fmt.Sprintf("%s:%d", r.Host, r.Port)
+}
+
+// envStr reads an env var directly and trims whitespace (viper doesn't trim).
+func envStr(key string) string {
+	return strings.TrimSpace(os.Getenv(key))
+}
+
+// envInt reads an env var directly, trims whitespace, and parses as int.
+// Returns the fallback if parsing fails.
+func envInt(key string, fallback int) int {
+	s := strings.TrimSpace(os.Getenv(key))
+	if s == "" {
+		return fallback
+	}
+	n, err := strconv.Atoi(s)
+	if err != nil {
+		return fallback
+	}
+	return n
 }
