@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -36,6 +37,11 @@ func InitApp() {
 	// Serverless: override pool settings for Supavisor transaction mode
 	cfg.Database.MinConns = 0
 	cfg.Database.MaxConns = 2
+
+	// Auto-detect Supabase pooler: use port 6543 if host contains "pooler" and port is 0/5432
+	if strings.Contains(cfg.Database.Host, "pooler") && cfg.Database.Port != 6543 {
+		cfg.Database.Port = 6543
+	}
 
 	ctx := context.Background()
 
