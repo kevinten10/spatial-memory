@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -181,7 +182,12 @@ func setDefaults() {
 
 func (d DatabaseConfig) DSN() string {
 	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s&default_query_exec_mode=simple_protocol",
-		d.User, d.Password, d.Host, d.Port, d.DBName, d.SSLMode)
+		url.PathEscape(strings.TrimSpace(d.User)),
+		url.PathEscape(strings.TrimSpace(d.Password)),
+		strings.TrimSpace(d.Host),
+		d.Port,
+		strings.TrimSpace(d.DBName),
+		strings.TrimSpace(d.SSLMode))
 }
 
 func (r RedisConfig) Addr() string {
