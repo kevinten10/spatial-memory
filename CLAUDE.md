@@ -13,7 +13,7 @@ This repo contains the Go backend API. Mobile app (Flutter + ARCore/ARKit) is a 
 - **Database**: PostgreSQL 16 + PostGIS 3.4
 - **Cache**: Redis 7
 - **Object Storage**: Cloudflare R2 (S3-compatible)
-- **AI Moderation**: GLM-4V (ZhipuAI)
+- **AI Moderation**: Volcengine Ark CodingPlan
 - **Auth**: JWT (golang-jwt) + SMS + WeChat OAuth
 - **Migrations**: golang-migrate
 - **Logging**: zerolog
@@ -40,7 +40,7 @@ spatial-memory/
 │   ├── service/                 # Business logic
 │   ├── handler/                 # HTTP handlers (Gin)
 │   ├── middleware/              # Auth, rate-limit, logging
-│   └── pkg/                    # Shared utilities (R2, SMS, WeChat, GLM, response helpers)
+│   └── pkg/                    # Shared utilities (R2, SMS, WeChat, Ark, response helpers)
 ├── migrations/                  # SQL migration files
 ├── tests/integration/           # E2E API tests (testcontainers)
 ├── docs/
@@ -59,7 +59,7 @@ Clean layered architecture: **handler → service → repository**
 - **No ORM** — PostGIS spatial queries need hand-written SQL via pgx
 - **Two-phase upload** — clients upload directly to R2 via pre-signed URLs, never through API
 - **Redis GEO cache** — hot-zone spatial queries cached with GEOADD/GEOSEARCH
-- **Background moderation** — public memories queue for GLM-4V AI review
+- **Background moderation** — public memories queue for Ark AI review
 
 ## Key Design Decisions
 

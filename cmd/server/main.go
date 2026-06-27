@@ -104,7 +104,7 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("failed to create R2 storage client")
 	}
-	glmClient := moderation.NewClient(cfg.GLM)
+	arkClient := moderation.NewClient(cfg.Ark)
 
 	// --- Services ---
 	tokenService := service.NewTokenService(cfg.JWT, authRepo, userRepo)
@@ -114,7 +114,7 @@ func main() {
 	uploadService := service.NewUploadService(r2Client, memoryRepo, mediaRepo, cfg.R2.PublicURL)
 	circleService := service.NewCircleService(circleRepo, userRepo)
 	permissionService := service.NewPermissionService(permRepo, memoryRepo, circleRepo)
-	moderationService := service.NewModerationService(moderationRepo, memoryRepo, glmClient)
+	moderationService := service.NewModerationService(moderationRepo, memoryRepo, arkClient)
 
 	// --- Handlers ---
 	healthHandler := handler.NewHealthHandler(dbPool, redisClient)

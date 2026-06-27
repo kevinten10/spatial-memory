@@ -115,7 +115,7 @@
 **5. Moderation Service — Safety**
 - Public memories require review (AI screening + human review)
 - Private/circle memories exempt but have report channel
-- GLM-4V (ZhipuAI) for Chinese content understanding and moderation
+- Volcengine Ark for Chinese content understanding and moderation
 
 ### AR Abstraction Layer (Key Differentiator)
 
@@ -149,7 +149,7 @@ This abstraction decouples from any single AR platform and enables future migrat
 | Object storage | Cloudflare R2 | Zero egress fees — critical for media-heavy app |
 | CDN | Cloudflare | Seamless R2 integration |
 | Cache | Redis + GeoHash | Fast hot-zone memory lookups |
-| AI moderation | GLM-4V (ZhipuAI) | Strong Chinese content understanding, low cost |
+| AI moderation | Volcengine Ark CodingPlan | Chinese content understanding and configurable text/image review |
 | Real-time sync | WebSocket | Multi-user presence at same location (Phase 2) |
 
 ### Key Technical Risks

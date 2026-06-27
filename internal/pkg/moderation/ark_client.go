@@ -16,28 +16,42 @@ import (
 )
 
 const (
-	defaultBaseURL = "https://open.bigmodel.cn/api/paas/v4"
-	defaultTimeout = 30 * time.Second
+	defaultBaseURL     = "https://ark.cn-beijing.volces.com/api/coding/v3"
+	defaultChatModel   = "doubao-seed-2-0-code-preview-260215"
+	defaultVisionModel = defaultChatModel
+	defaultTimeout     = 30 * time.Second
 )
 
-// GLMClient is the interface for GLM-4V moderation client.
-type GLMClient interface {
+// ArkClient is the interface for Ark moderation client.
+type ArkClient interface {
 	ModerateImage(ctx context.Context, imageURL string) (*model.ModerationResult, error)
 	ModerateText(ctx context.Context, text string) (*model.ModerationResult, error)
 }
 
-// Client implements GLMClient using ZhipuAI REST API.
+// Client implements ArkClient using the OpenAI-compatible Ark API.
 type Client struct {
-	apiKey     string
-	baseURL    string
-	httpClient *http.Client
+	apiKey      string
+	baseURL     string
+	chatModel   string
+	visionModel string
+	httpClient  *http.Client
 }
 
-// NewClient creates a new GLM-4V moderation client.
-func NewClient(cfg config.GLMConfig) GLMClient {
+// NewClient creates a new Ark moderation client.
+func NewClient(cfg config.ArkConfig) ArkClient {
 	baseURL := cfg.BaseURL
 	if baseURL == "" {
 		baseURL = defaultBaseURL
+	}
+
+	chatModel := cfg.ChatModel
+	if chatModel == "" {
+		chatModel = defaultChatModel
+	}
+
+	visionModel := cfg.VisionModel
+	if visionModel == "" {
+		visionModel = defaultVisionModel
 	}
 
 	timeout := cfg.Timeout
@@ -46,15 +60,17 @@ func NewClient(cfg config.GLMConfig) GLMClient {
 	}
 
 	return &Client{
-		apiKey:  cfg.APIKey,
-		baseURL: baseURL,
+		apiKey:      cfg.APIKey,
+		baseURL:     baseURL,
+		chatModel:   chatModel,
+		visionModel: visionModel,
 		httpClient: &http.Client{
 			Timeout: timeout,
 		},
 	}
 }
 
-// chatRequest represents the request body for GLM-4V API.
+// chatRequest represents the request body for Ark chat completions.
 type chatRequest struct {
 	Model    string    `json:"model"`
 	Messages []message `json:"messages"`
@@ -79,7 +95,7 @@ type imageContent struct {
 	} `json:"image_url"`
 }
 
-// chatResponse represents the response from GLM-4V API.
+// chatResponse represents the response from Ark chat completions.
 type chatResponse struct {
 	Choices []struct {
 		Message struct {
@@ -92,10 +108,10 @@ type chatResponse struct {
 	} `json:"error,omitempty"`
 }
 
-// ModerateImage moderates an image using GLM-4V.
+// ModerateImage moderates an image using Ark vision chat.
 func (c *Client) ModerateImage(ctx context.Context, imageURL string) (*model.ModerationResult, error) {
 	if c.apiKey == "" {
-		return nil, fmt.Errorf("GLM API key not configured")
+		return nil, fmt.Errorf("Ark API key not configured")
 	}
 
 	prompt := `Analyze this image for content moderation. Check for:
@@ -116,7 +132,7 @@ Respond in JSON format only:
 If safe, categories should be empty. If unsafe, list applicable categories.`
 
 	reqBody := chatRequest{
-		Model: "glm-4v",
+		Model: c.visionModel,
 		Messages: []message{
 			{
 				Role: "user",
@@ -136,10 +152,10 @@ If safe, categories should be empty. If unsafe, list applicable categories.`
 	return c.doRequestWithRetry(ctx, reqBody)
 }
 
-// ModerateText moderates text content using GLM-4V.
+// ModerateText moderates text content using Ark chat.
 func (c *Client) ModerateText(ctx context.Context, text string) (*model.ModerationResult, error) {
 	if c.apiKey == "" {
-		return nil, fmt.Errorf("GLM API key not configured")
+		return nil, fmt.Errorf("Ark API key not configured")
 	}
 
 	prompt := fmt.Sprintf(`Analyze the following text for content moderation:
@@ -164,7 +180,7 @@ Respond in JSON format only:
 If safe, categories should be empty. If unsafe, list applicable categories.`, text)
 
 	reqBody := chatRequest{
-		Model: "glm-4",
+		Model: c.chatModel,
 		Messages: []message{
 			{
 				Role: "user",
@@ -184,7 +200,7 @@ func (c *Client) doRequestWithRetry(ctx context.Context, reqBody chatRequest) (*
 	if err != nil {
 		// Retry on 5xx errors
 		if statusCode >= 500 && statusCode < 600 {
-			log.Warn().Int("status_code", statusCode).Msg("GLM API returned 5xx, retrying once")
+			log.Warn().Int("status_code", statusCode).Msg("Ark API returned 5xx, retrying once")
 			time.Sleep(1 * time.Second)
 			result, _, err = c.doRequest(ctx, reqBody)
 		}
@@ -219,7 +235,7 @@ func (c *Client) doRequest(ctx context.Context, reqBody chatRequest) (*model.Mod
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, resp.StatusCode, fmt.Errorf("GLM API returned status %d: %s", resp.StatusCode, string(body))
+		return nil, resp.StatusCode, fmt.Errorf("Ark API returned status %d: %s", resp.StatusCode, string(body))
 	}
 
 	var chatResp chatResponse
@@ -228,11 +244,11 @@ func (c *Client) doRequest(ctx context.Context, reqBody chatRequest) (*model.Mod
 	}
 
 	if chatResp.Error != nil {
-		return nil, resp.StatusCode, fmt.Errorf("GLM API error: %s - %s", chatResp.Error.Code, chatResp.Error.Message)
+		return nil, resp.StatusCode, fmt.Errorf("Ark API error: %s - %s", chatResp.Error.Code, chatResp.Error.Message)
 	}
 
 	if len(chatResp.Choices) == 0 {
-		return nil, resp.StatusCode, fmt.Errorf("no choices in GLM response")
+		return nil, resp.StatusCode, fmt.Errorf("no choices in Ark response")
 	}
 
 	// Parse the content which should be JSON
@@ -251,7 +267,7 @@ func (c *Client) doRequest(ctx context.Context, reqBody chatRequest) (*model.Mod
 	return result, resp.StatusCode, nil
 }
 
-// parseModerationResult parses the JSON response from GLM.
+// parseModerationResult parses the JSON response from Ark.
 func parseModerationResult(content string) (*model.ModerationResult, error) {
 	// Try to extract JSON from the response (it might be wrapped in markdown code blocks)
 	jsonStr := extractJSON(content)

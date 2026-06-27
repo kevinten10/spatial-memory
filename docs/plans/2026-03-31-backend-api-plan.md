@@ -4,7 +4,7 @@
 
 **Goal:** Build the backend API and database layer for a Spatial Memory Network — an AR app that lets users pin memories to physical locations and discover others' memories by visiting those locations.
 
-**Architecture:** Go REST API with PostGIS for spatial queries, Cloudflare R2 for media storage, Redis for spatial caching. Clean layered architecture: handler → service → repository. JWT auth with SMS + WeChat login. GLM-4V AI moderation for public content.
+**Architecture:** Go REST API with PostGIS for spatial queries, Cloudflare R2 for media storage, Redis for spatial caching. Clean layered architecture: handler → service → repository. JWT auth with SMS + WeChat login. Ark AI moderation for public content.
 
 **Tech Stack:** Go 1.22+, Gin, pgx v5, PostGIS, Redis, Cloudflare R2 (S3-compatible), golang-jwt, golang-migrate, zerolog, Viper, Swagger/swaggo
 
@@ -67,7 +67,7 @@ spatial-memory/
 │       ├── storage/             # R2/S3 client
 │       ├── sms/                 # SMS provider client
 │       ├── wechat/              # WeChat OAuth client
-│       └── moderation/          # GLM-4V moderation client
+│       └── moderation/          # Ark moderation client
 ├── migrations/                  # SQL migration files
 ├── tests/integration/           # End-to-end API tests
 ├── docker-compose.yml
@@ -101,7 +101,7 @@ Chunk 1 (Scaffolding)
 
 - [ ] `mkdir -p ~/projects/spatial-memory && cd ~/projects/spatial-memory && go mod init github.com/spatial-memory/spatial-memory`
 - [ ] Create `cmd/server/main.go` — minimal main that loads config, creates Gin router, registers `/health`, starts server with graceful shutdown
-- [ ] Create `internal/config/config.go` — Viper config struct (Server, Database, Redis, R2, JWT, SMS, WeChat, GLM sections). Load from env vars with `SPATIAL_` prefix, `.env` fallback
+- [ ] Create `internal/config/config.go` — Viper config struct (Server, Database, Redis, R2, JWT, SMS, WeChat, Ark sections). Load from env vars with `SPATIAL_` prefix, `.env` fallback
 - [ ] Create `internal/pkg/response/response.go` — `Success()`, `Error()`, `Paginated()` helpers
 - [ ] Create `internal/pkg/errors/errors.go` — domain errors (ErrNotFound, ErrUnauthorized, ErrForbidden, ErrValidation)
 - [ ] Create `internal/handler/health.go` — `GET /health` with DB + Redis connectivity checks
@@ -393,15 +393,15 @@ Chunk 1 (Scaffolding)
 
 ## Chunk 6: Moderation Pipeline (Days 25-28)
 
-### Task 6.1: GLM-4V moderation client
+### Task 6.1: Ark moderation client
 
-**Files:** `internal/pkg/moderation/glm_client.go`, `glm_client_test.go`
+**Files:** `internal/pkg/moderation/ark_client.go`, `ark_client_test.go`
 
-- [ ] ZhipuAI REST API integration (`POST https://open.bigmodel.cn/api/paas/v4/chat/completions`)
+- [ ] Ark OpenAI-compatible API integration (`POST https://ark.cn-beijing.volces.com/api/coding/v3/chat/completions`)
 - [ ] `ModerateImage(imageURL)`, `ModerateText(text)` → `ModerationResult{Safe, Confidence, Categories}`
 - [ ] 30s timeout, 1 retry on 5xx
 - [ ] Unit tests with mocked HTTP
-- [ ] Commit: `pkg: implement GLM-4V moderation client`
+- [ ] Commit: `pkg: implement Ark moderation client`
 
 ### Task 6.2: Moderation repository
 
@@ -415,7 +415,7 @@ Chunk 1 (Scaffolding)
 
 **Files:** `internal/service/moderation_service.go`, `moderation_service_test.go`
 
-- [ ] `ProcessQueue`: batch fetch → GLM-4V → auto-approve (>0.95 safe) / auto-reject (>0.95 unsafe) / escalate
+- [ ] `ProcessQueue`: batch fetch → Ark moderation → auto-approve (>0.95 safe) / auto-reject (>0.95 unsafe) / escalate
 - [ ] Background worker goroutine with configurable interval
 - [ ] `ManualReview` for admin
 - [ ] Unit tests
@@ -508,4 +508,4 @@ After completing all chunks:
 | `internal/repository/memory_repo.go` | Contains the core `ST_DWithin` + `ST_Distance` spatial query — the product's primary value proposition |
 | `internal/service/auth_service.go` | SMS + WeChat login — critical path for Chinese market user onboarding |
 | `internal/repository/spatial_cache.go` | Redis GEO cache for hot zones — determines performance under load |
-| `internal/service/moderation_service.go` | GLM-4V AI pipeline — content moderation is legally required in China |
+| `internal/service/moderation_service.go` | Ark AI moderation pipeline — content moderation is legally required in China |

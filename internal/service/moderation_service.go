@@ -28,7 +28,7 @@ type ModerationService interface {
 type moderationService struct {
 	moderationRepo repository.ModerationRepository
 	memoryRepo     repository.MemoryRepository
-	glmClient      moderation.GLMClient
+	arkClient      moderation.ArkClient
 
 	workerCtx    context.Context
 	workerCancel context.CancelFunc
@@ -40,12 +40,12 @@ type moderationService struct {
 func NewModerationService(
 	moderationRepo repository.ModerationRepository,
 	memoryRepo repository.MemoryRepository,
-	glmClient moderation.GLMClient,
+	arkClient moderation.ArkClient,
 ) ModerationService {
 	return &moderationService{
 		moderationRepo: moderationRepo,
 		memoryRepo:     memoryRepo,
-		glmClient:      glmClient,
+		arkClient:      arkClient,
 	}
 }
 
@@ -92,7 +92,7 @@ func (s *moderationService) processItem(ctx context.Context, item *model.Moderat
 	}
 
 	// Moderate text content
-	textResult, err := s.glmClient.ModerateText(ctx, memory.Content)
+	textResult, err := s.arkClient.ModerateText(ctx, memory.Content)
 	if err != nil {
 		log.Error().Err(err).Int64("memory_id", item.MemoryID).Msg("text moderation failed, escalating")
 		return s.escalateItem(ctx, item.ID, "AI text moderation failed: "+err.Error())
@@ -103,7 +103,7 @@ func (s *moderationService) processItem(ctx context.Context, item *model.Moderat
 	var imageCategories []string
 	for _, m := range media {
 		if m.MediaType == model.MediaTypePhoto {
-			imgResult, err := s.glmClient.ModerateImage(ctx, m.URL)
+			imgResult, err := s.arkClient.ModerateImage(ctx, m.URL)
 			if err != nil {
 				log.Error().Err(err).Int64("memory_id", item.MemoryID).Str("url", m.URL).Msg("image moderation failed, escalating")
 				return s.escalateItem(ctx, item.ID, "AI image moderation failed: "+err.Error())

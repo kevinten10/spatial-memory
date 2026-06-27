@@ -10,7 +10,7 @@ Backend API for a Spatial Memory Network - an AR app that lets users pin multime
 - **Proximity-Based Discovery**: Find memories near your current location using PostGIS spatial queries
 - **Progressive Visibility**: Private → Circle (friends) → Public sharing options
 - **Two-Phase Upload**: Direct-to-R2 uploads via pre-signed URLs (never proxy through API)
-- **AI Moderation**: GLM-4V powered content moderation for public UGC
+- **AI Moderation**: Ark-powered text and image moderation for public UGC
 - **Social Circles**: Create friend circles for selective memory sharing
 - **Real-time Cache**: Redis GEO commands for hot-zone spatial caching
 - **Multi-Auth**: SMS and WeChat OAuth login support
@@ -22,7 +22,7 @@ Backend API for a Spatial Memory Network - an AR app that lets users pin multime
 - **Database**: PostgreSQL 16 + PostGIS 3.4
 - **Cache**: Redis 7
 - **Object Storage**: Cloudflare R2 (S3-compatible)
-- **AI Moderation**: GLM-4V (ZhipuAI)
+- **AI Moderation**: Volcengine Ark CodingPlan
 - **Auth**: JWT (golang-jwt) + SMS + WeChat OAuth
 - **Migrations**: golang-migrate
 - **Logging**: zerolog
@@ -104,8 +104,11 @@ SPATIAL_SMS_FROM_NUMBER=your-phone-number
 SPATIAL_WECHAT_APP_ID=your-app-id
 SPATIAL_WECHAT_APP_SECRET=your-app-secret
 
-# GLM-4V Moderation
-SPATIAL_GLM_API_KEY=your-glm-api-key
+# Ark Moderation
+SPATIAL_ARK_API_KEY=your-ark-api-key
+SPATIAL_ARK_BASE_URL=https://ark.cn-beijing.volces.com/api/coding/v3
+SPATIAL_ARK_CHAT_MODEL=doubao-seed-2-0-code-preview-260215
+SPATIAL_ARK_VISION_MODEL=doubao-seed-2-0-code-preview-260215
 ```
 
 ## API Documentation
@@ -188,7 +191,7 @@ spatial-memory/
 │   │   ├── sms/                 # SMS provider client
 │   │   ├── storage/             # R2/S3 client
 │   │   ├── wechat/              # WeChat OAuth client
-│   │   └── moderation/          # GLM-4V moderation client
+│   │   └── moderation/          # Ark moderation client
 │   ├── repository/              # Database access (pgx)
 │   ├── router/                  # Route definitions
 │   └── service/                 # Business logic
@@ -208,7 +211,7 @@ Clean layered architecture: **handler → service → repository**
 - **No ORM**: PostGIS spatial queries use hand-written SQL via pgx
 - **Two-phase upload**: Clients upload directly to R2 via pre-signed URLs
 - **Redis GEO cache**: Hot-zone spatial queries cached with GEOADD/GEOSEARCH
-- **Background moderation**: Public memories queue for GLM-4V AI review
+- **Background moderation**: Public memories queue for Ark AI review
 
 ## Development
 
@@ -275,7 +278,7 @@ docker run -p 8080:8080 --env-file .env spatial-memory:latest
 - [ ] Set up R2/cloud storage credentials
 - [ ] Configure SMS provider
 - [ ] Set up WeChat OAuth credentials
-- [ ] Configure GLM-4V API key
+- [ ] Configure Ark API key and models
 - [ ] Enable HTTPS/TLS
 - [ ] Set up monitoring and logging
 - [ ] Configure rate limiting

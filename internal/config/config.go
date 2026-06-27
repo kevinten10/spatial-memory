@@ -19,7 +19,7 @@ type Config struct {
 	JWT      JWTConfig
 	SMS      SMSConfig
 	WeChat   WeChatConfig
-	GLM      GLMConfig
+	Ark      ArkConfig
 }
 
 type ServerConfig struct {
@@ -75,10 +75,12 @@ type WeChatConfig struct {
 	AppSecret string `mapstructure:"app_secret"`
 }
 
-type GLMConfig struct {
-	APIKey  string        `mapstructure:"api_key"`
-	BaseURL string        `mapstructure:"base_url"`
-	Timeout time.Duration `mapstructure:"timeout"`
+type ArkConfig struct {
+	APIKey      string        `mapstructure:"api_key"`
+	BaseURL     string        `mapstructure:"base_url"`
+	ChatModel   string        `mapstructure:"chat_model"`
+	VisionModel string        `mapstructure:"vision_model"`
+	Timeout     time.Duration `mapstructure:"timeout"`
 }
 
 func Load() (*Config, error) {
@@ -103,14 +105,14 @@ func Load() (*Config, error) {
 			Mode:         envStr("SPATIAL_SERVER_MODE"),
 		},
 		Database: DatabaseConfig{
-			Host:     envStr("SPATIAL_DATABASE_HOST"),
-			Port:     envInt("SPATIAL_DATABASE_PORT", 5432),
-			User:     envStr("SPATIAL_DATABASE_USER"),
-			Password: envStr("SPATIAL_DATABASE_PASSWORD"),
-			DBName:   envStr("SPATIAL_DATABASE_DBNAME"),
-			SSLMode:  envStr("SPATIAL_DATABASE_SSLMODE"),
-			MinConns: int32(envInt("SPATIAL_DATABASE_MIN_CONNS", viper.GetInt("database.min_conns"))),
-			MaxConns: int32(envInt("SPATIAL_DATABASE_MAX_CONNS", viper.GetInt("database.max_conns"))),
+			Host:            envStr("SPATIAL_DATABASE_HOST"),
+			Port:            envInt("SPATIAL_DATABASE_PORT", 5432),
+			User:            envStr("SPATIAL_DATABASE_USER"),
+			Password:        envStr("SPATIAL_DATABASE_PASSWORD"),
+			DBName:          envStr("SPATIAL_DATABASE_DBNAME"),
+			SSLMode:         envStr("SPATIAL_DATABASE_SSLMODE"),
+			MinConns:        int32(envInt("SPATIAL_DATABASE_MIN_CONNS", viper.GetInt("database.min_conns"))),
+			MaxConns:        int32(envInt("SPATIAL_DATABASE_MAX_CONNS", viper.GetInt("database.max_conns"))),
 			MaxConnLifetime: viper.GetDuration("database.max_conn_lifetime"),
 		},
 		Redis: RedisConfig{
@@ -142,10 +144,12 @@ func Load() (*Config, error) {
 			AppID:     viper.GetString("wechat.app_id"),
 			AppSecret: viper.GetString("wechat.app_secret"),
 		},
-		GLM: GLMConfig{
-			APIKey:  viper.GetString("glm.api_key"),
-			BaseURL: viper.GetString("glm.base_url"),
-			Timeout: viper.GetDuration("glm.timeout"),
+		Ark: ArkConfig{
+			APIKey:      viper.GetString("ark.api_key"),
+			BaseURL:     viper.GetString("ark.base_url"),
+			ChatModel:   viper.GetString("ark.chat_model"),
+			VisionModel: viper.GetString("ark.vision_model"),
+			Timeout:     viper.GetDuration("ark.timeout"),
 		},
 	}
 
@@ -178,8 +182,10 @@ func setDefaults() {
 	viper.SetDefault("jwt.access_expiration", 2*time.Hour)
 	viper.SetDefault("jwt.refresh_expiration", 30*24*time.Hour)
 
-	viper.SetDefault("glm.base_url", "https://open.bigmodel.cn/api/paas/v4")
-	viper.SetDefault("glm.timeout", 30*time.Second)
+	viper.SetDefault("ark.base_url", "https://ark.cn-beijing.volces.com/api/coding/v3")
+	viper.SetDefault("ark.chat_model", "doubao-seed-2-0-code-preview-260215")
+	viper.SetDefault("ark.vision_model", "doubao-seed-2-0-code-preview-260215")
+	viper.SetDefault("ark.timeout", 30*time.Second)
 }
 
 func (d DatabaseConfig) DSN() string {

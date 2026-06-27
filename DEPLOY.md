@@ -29,7 +29,10 @@ docker run -p 8080:8080 \
   -e R2_SECRET_ACCESS_KEY="your-secret-key" \
   -e R2_BUCKET="your-bucket" \
   -e R2_PUBLIC_URL="https://your-bucket.r2.dev" \
-  -e GLM_API_KEY="your-glm-api-key" \
+  -e ARK_API_KEY="your-ark-api-key" \
+  -e ARK_BASE_URL="https://ark.cn-beijing.volces.com/api/coding/v3" \
+  -e ARK_CHAT_MODEL="doubao-seed-2-0-code-preview-260215" \
+  -e ARK_VISION_MODEL="doubao-seed-2-0-code-preview-260215" \
   spatial-memory:latest
 ```
 
@@ -51,7 +54,10 @@ services:
       - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}
       - R2_BUCKET=${R2_BUCKET}
       - R2_PUBLIC_URL=${R2_PUBLIC_URL}
-      - GLM_API_KEY=${GLM_API_KEY}
+      - ARK_API_KEY=${ARK_API_KEY}
+      - ARK_BASE_URL=${ARK_BASE_URL}
+      - ARK_CHAT_MODEL=${ARK_CHAT_MODEL}
+      - ARK_VISION_MODEL=${ARK_VISION_MODEL}
     restart: unless-stopped
 ```
 
@@ -98,7 +104,10 @@ flyctl deploy
 | `R2_SECRET_ACCESS_KEY` | R2 secret key |
 | `R2_BUCKET` | R2 bucket name |
 | `R2_PUBLIC_URL` | Public URL for R2 bucket |
-| `GLM_API_KEY` | ZhipuAI GLM-4V API key |
+| `ARK_API_KEY` | Volcengine Ark API key |
+| `ARK_BASE_URL` | Ark OpenAI-compatible base URL |
+| `ARK_CHAT_MODEL` | Ark text moderation model |
+| `ARK_VISION_MODEL` | Ark image moderation model |
 
 ### Optional
 | Variable | Description |
