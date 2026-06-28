@@ -21,11 +21,11 @@ func TestMemoryCRUD(t *testing.T) {
 
 	t.Run("Create Memory", func(t *testing.T) {
 		body := map[string]interface{}{
-			"title":       "Test Memory",
-			"content":     "This is a test memory",
-			"location":    map[string]float64{"lat": 39.9042, "lng": 116.4074},
-			"address":     "Beijing, China",
-			"visibility":  2, // Public
+			"title":      "Test Memory",
+			"content":    "This is a test memory",
+			"location":   map[string]float64{"lat": 39.9042, "lng": 116.4074},
+			"address":    "Beijing, China",
+			"visibility": 2, // Public
 		}
 		jsonBody, _ := json.Marshal(body)
 

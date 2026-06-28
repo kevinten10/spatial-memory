@@ -8,7 +8,7 @@ This repo contains the Go backend API. Mobile app (Flutter + ARCore/ARKit) is a 
 
 ## Tech Stack
 
-- **Language**: Go 1.22+
+- **Language**: Go 1.25+
 - **HTTP Framework**: Gin
 - **Database**: PostgreSQL 16 + PostGIS 3.4
 - **Cache**: Redis 7

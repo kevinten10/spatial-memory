@@ -13,9 +13,9 @@ import (
 
 // MediaTypeSizeLimits defines max file sizes per media type.
 var MediaTypeSizeLimits = map[MediaType]int64{
-	MediaTypePhoto: 20 * 1024 * 1024, // 20MB
+	MediaTypePhoto: 20 * 1024 * 1024,  // 20MB
 	MediaTypeVideo: 100 * 1024 * 1024, // 100MB
-	MediaTypeVoice: 10 * 1024 * 1024, // 10MB
+	MediaTypeVoice: 10 * 1024 * 1024,  // 10MB
 }
 
 // AllowedMimeTypes maps media types to allowed MIME types.

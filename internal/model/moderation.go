@@ -6,10 +6,10 @@ import "time"
 type ModerationStatus int
 
 const (
-	ModerationStatusPending    ModerationStatus = 0
-	ModerationStatusApproved   ModerationStatus = 1
-	ModerationStatusRejected   ModerationStatus = 2
-	ModerationStatusEscalated  ModerationStatus = 3
+	ModerationStatusPending   ModerationStatus = 0
+	ModerationStatusApproved  ModerationStatus = 1
+	ModerationStatusRejected  ModerationStatus = 2
+	ModerationStatusEscalated ModerationStatus = 3
 )
 
 // ModerationItem represents a content moderation queue entry.
@@ -41,11 +41,11 @@ type ModerationResult struct {
 
 // ModerationStats represents moderation queue statistics.
 type ModerationStats struct {
-	PendingCount    int64 `json:"pending_count"`
-	EscalatedCount  int64 `json:"escalated_count"`
-	ApprovedCount   int64 `json:"approved_count"`
-	RejectedCount   int64 `json:"rejected_count"`
-	TotalCount      int64 `json:"total_count"`
+	PendingCount   int64 `json:"pending_count"`
+	EscalatedCount int64 `json:"escalated_count"`
+	ApprovedCount  int64 `json:"approved_count"`
+	RejectedCount  int64 `json:"rejected_count"`
+	TotalCount     int64 `json:"total_count"`
 }
 
 // ManualReviewRequest represents a manual review request payload.

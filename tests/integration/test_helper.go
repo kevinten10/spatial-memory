@@ -26,9 +26,9 @@ import (
 )
 
 type TestSuite struct {
-	DB          *pgxpool.Pool
-	Redis       *redis.Client
-	Router      *gin.Engine
+	DB           *pgxpool.Pool
+	Redis        *redis.Client
+	Router       *gin.Engine
 	TokenService service.TokenService
 }
 
@@ -126,9 +126,9 @@ func setupTestSuite(db *pgxpool.Pool, redisClient *redis.Client) *TestSuite {
 			Port: 8080,
 		},
 		JWT: config.JWTConfig{
-			Secret:           "test-secret-key",
-			AccessTokenTTL:   2 * time.Hour,
-			RefreshTokenTTL:  30 * 24 * time.Hour,
+			Secret:          "test-secret-key",
+			AccessTokenTTL:  2 * time.Hour,
+			RefreshTokenTTL: 30 * 24 * time.Hour,
 		},
 	}
 
@@ -185,9 +185,9 @@ func setupTestSuite(db *pgxpool.Pool, redisClient *redis.Client) *TestSuite {
 	})
 
 	return &TestSuite{
-		DB:          db,
-		Redis:       redisClient,
-		Router:      r,
+		DB:           db,
+		Redis:        redisClient,
+		Router:       r,
 		TokenService: tokenService,
 	}
 }

@@ -9,8 +9,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	domainerr "github.com/spatial-memory/spatial-memory/internal/pkg/errors"
 	"github.com/spatial-memory/spatial-memory/internal/model"
+	domainerr "github.com/spatial-memory/spatial-memory/internal/pkg/errors"
 )
 
 // ModerationRepository handles content moderation queue.

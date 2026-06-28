@@ -17,7 +17,7 @@ Backend API for a Spatial Memory Network - an AR app that lets users pin multime
 
 ## Tech Stack
 
-- **Language**: Go 1.22+
+- **Language**: Go 1.25+
 - **HTTP Framework**: Gin
 - **Database**: PostgreSQL 16 + PostGIS 3.4
 - **Cache**: Redis 7
@@ -33,7 +33,7 @@ Backend API for a Spatial Memory Network - an AR app that lets users pin multime
 
 ### Prerequisites
 
-- Go 1.22+
+- Go 1.25+
 - Docker and Docker Compose
 - Make
 
@@ -75,7 +75,7 @@ SPATIAL_DATABASE_HOST=localhost
 SPATIAL_DATABASE_PORT=5432
 SPATIAL_DATABASE_USER=spatial
 SPATIAL_DATABASE_PASSWORD=spatial
-SPATIAL_DATABASE_NAME=spatial_memory
+SPATIAL_DATABASE_DBNAME=spatial_memory
 SPATIAL_DATABASE_SSLMODE=disable
 
 # Redis
@@ -84,21 +84,21 @@ SPATIAL_REDIS_PORT=6379
 
 # JWT
 SPATIAL_JWT_SECRET=your-secret-key-here
-SPATIAL_JWT_ACCESS_TTL=2h
-SPATIAL_JWT_REFRESH_TTL=720h
+SPATIAL_JWT_ACCESS_EXPIRATION=2h
+SPATIAL_JWT_REFRESH_EXPIRATION=720h
 
 # R2 Storage
 SPATIAL_R2_ACCOUNT_ID=your-account-id
 SPATIAL_R2_ACCESS_KEY_ID=your-access-key
 SPATIAL_R2_ACCESS_KEY_SECRET=your-secret-key
-SPATIAL_R2_BUCKET_NAME=spatial-memory
+SPATIAL_R2_BUCKET=spatial-memory
 SPATIAL_R2_PUBLIC_URL=https://your-bucket.r2.cloudflarestorage.com
 
-# SMS (Twilio or similar)
-SPATIAL_SMS_PROVIDER=twilio
-SPATIAL_SMS_ACCOUNT_SID=your-account-sid
-SPATIAL_SMS_AUTH_TOKEN=your-auth-token
-SPATIAL_SMS_FROM_NUMBER=your-phone-number
+# SMS
+SPATIAL_SMS_PROVIDER=provider-name
+SPATIAL_SMS_API_KEY=your-api-key
+SPATIAL_SMS_API_SECRET=your-api-secret
+SPATIAL_SMS_SIGN_NAME=your-sign-name
 
 # WeChat OAuth
 SPATIAL_WECHAT_APP_ID=your-app-id
@@ -109,6 +109,7 @@ SPATIAL_ARK_API_KEY=your-ark-api-key
 SPATIAL_ARK_BASE_URL=https://ark.cn-beijing.volces.com/api/coding/v3
 SPATIAL_ARK_CHAT_MODEL=doubao-seed-2-0-code-preview-260215
 SPATIAL_ARK_VISION_MODEL=doubao-seed-2-0-code-preview-260215
+SPATIAL_ARK_TIMEOUT=30s
 ```
 
 ## API Documentation

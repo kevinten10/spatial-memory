@@ -38,23 +38,23 @@ type GeoPoint struct {
 
 // Memory is the core entity for spatial content.
 type Memory struct {
-	ID             int64        `json:"id"`
-	UserID         int64        `json:"user_id"`
-	Title          string       `json:"title"`
-	Content        string       `json:"content"`
-	Location       GeoPoint     `json:"location"`
-	Address        string       `json:"address"`
-	Visibility     Visibility   `json:"visibility"`
-	Status         MemoryStatus `json:"status"`
-	LikeCount      int          `json:"like_count"`
-	ViewCount      int          `json:"view_count"`
-	BookmarkCount  int          `json:"bookmark_count"`
-	CreatedAt      time.Time    `json:"created_at"`
-	UpdatedAt      time.Time    `json:"updated_at"`
+	ID             int64         `json:"id"`
+	UserID         int64         `json:"user_id"`
+	Title          string        `json:"title"`
+	Content        string        `json:"content"`
+	Location       GeoPoint      `json:"location"`
+	Address        string        `json:"address"`
+	Visibility     Visibility    `json:"visibility"`
+	Status         MemoryStatus  `json:"status"`
+	LikeCount      int           `json:"like_count"`
+	ViewCount      int           `json:"view_count"`
+	BookmarkCount  int           `json:"bookmark_count"`
+	CreatedAt      time.Time     `json:"created_at"`
+	UpdatedAt      time.Time     `json:"updated_at"`
 	Media          []MemoryMedia `json:"media,omitempty"`
-	IsLiked        bool         `json:"is_liked,omitempty"`
-	IsBookmarked   bool         `json:"is_bookmarked,omitempty"`
-	DistanceMeters float64      `json:"distance_meters,omitempty"`
+	IsLiked        bool          `json:"is_liked,omitempty"`
+	IsBookmarked   bool          `json:"is_bookmarked,omitempty"`
+	DistanceMeters float64       `json:"distance_meters,omitempty"`
 }
 
 // MediaStatus represents the state of a media file.
@@ -74,11 +74,11 @@ type MemoryMedia struct {
 	StorageKey      string      `json:"-"`
 	URL             string      `json:"url"`
 	ContentHash     string      `json:"-"`
-	FileSize        int64       `json:"file_size"`                    // Alias for SizeBytes
-	SizeBytes       int64       `json:"size_bytes"`                   // DB field
+	FileSize        int64       `json:"file_size"`  // Alias for SizeBytes
+	SizeBytes       int64       `json:"size_bytes"` // DB field
 	MimeType        string      `json:"mime_type"`
-	Duration        int         `json:"duration,omitempty"`           // Alias for DurationSeconds
-	DurationSeconds int         `json:"duration_seconds,omitempty"`   // DB field
+	Duration        int         `json:"duration,omitempty"`         // Alias for DurationSeconds
+	DurationSeconds int         `json:"duration_seconds,omitempty"` // DB field
 	Width           int         `json:"width,omitempty"`
 	Height          int         `json:"height,omitempty"`
 	SortOrder       int         `json:"sort_order"`
@@ -104,14 +104,14 @@ type UpdateMemoryRequest struct {
 }
 
 type NearbyQuery struct {
-	Lat       float64 `form:"lat" binding:"required,latitude"`
-	Lng       float64 `form:"lng" binding:"required,longitude"`
-	Radius    int     `form:"radius" binding:"min=10,max=50000"` // meters
-	Sort      string  `form:"sort" binding:"omitempty,oneof=distance recent popular"`
-	Limit     int     `form:"limit" binding:"min=1,max=100"`
-	Cluster   bool    `form:"cluster"`
-	Page      int     `form:"page" binding:"min=1"`
-	PageSize  int     `form:"page_size" binding:"min=1,max=100"`
+	Lat      float64 `form:"lat" binding:"required,latitude"`
+	Lng      float64 `form:"lng" binding:"required,longitude"`
+	Radius   int     `form:"radius" binding:"min=10,max=50000"` // meters
+	Sort     string  `form:"sort" binding:"omitempty,oneof=distance recent popular"`
+	Limit    int     `form:"limit" binding:"min=1,max=100"`
+	Cluster  bool    `form:"cluster"`
+	Page     int     `form:"page" binding:"min=1"`
+	PageSize int     `form:"page_size" binding:"min=1,max=100"`
 }
 
 func (q *NearbyQuery) SetDefaults() {
