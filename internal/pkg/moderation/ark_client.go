@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	defaultBaseURL     = "https://ark.cn-beijing.volces.com/api/coding/v3"
+	defaultBaseURL     = "https://ark.cn-beijing.volces.com/api/plan/v3"
 	defaultChatModel   = "doubao-seed-2-0-code-preview-260215"
 	defaultVisionModel = defaultChatModel
 	defaultTimeout     = 30 * time.Second

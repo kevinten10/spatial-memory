@@ -13,7 +13,7 @@ This repo contains the Go backend API. Mobile app (Flutter + ARCore/ARKit) is a 
 - **Database**: PostgreSQL 16 + PostGIS 3.4
 - **Cache**: Redis 7
 - **Object Storage**: Cloudflare R2 (S3-compatible)
-- **AI Moderation**: Volcengine Ark CodingPlan
+- **AI Moderation**: Volcengine Ark Agent Plan
 - **Auth**: JWT (golang-jwt) + SMS + WeChat OAuth
 - **Migrations**: golang-migrate
 - **Logging**: zerolog

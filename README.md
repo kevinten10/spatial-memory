@@ -22,7 +22,7 @@ Backend API for a Spatial Memory Network - an AR app that lets users pin multime
 - **Database**: PostgreSQL 16 + PostGIS 3.4
 - **Cache**: Redis 7
 - **Object Storage**: Cloudflare R2 (S3-compatible)
-- **AI Moderation**: Volcengine Ark CodingPlan
+- **AI Moderation**: Volcengine Ark Agent Plan
 - **Auth**: JWT (golang-jwt) + SMS + WeChat OAuth
 - **Migrations**: golang-migrate
 - **Logging**: zerolog
@@ -106,7 +106,7 @@ SPATIAL_WECHAT_APP_SECRET=your-app-secret
 
 # Ark Moderation
 SPATIAL_ARK_API_KEY=your-ark-api-key
-SPATIAL_ARK_BASE_URL=https://ark.cn-beijing.volces.com/api/coding/v3
+SPATIAL_ARK_BASE_URL=https://ark.cn-beijing.volces.com/api/plan/v3
 SPATIAL_ARK_CHAT_MODEL=doubao-seed-2-0-code-preview-260215
 SPATIAL_ARK_VISION_MODEL=doubao-seed-2-0-code-preview-260215
 SPATIAL_ARK_TIMEOUT=30s

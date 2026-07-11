@@ -30,7 +30,7 @@ docker run -p 8080:8080 \
   -e R2_BUCKET="your-bucket" \
   -e R2_PUBLIC_URL="https://your-bucket.r2.dev" \
   -e ARK_API_KEY="your-ark-api-key" \
-  -e ARK_BASE_URL="https://ark.cn-beijing.volces.com/api/coding/v3" \
+  -e ARK_BASE_URL="https://ark.cn-beijing.volces.com/api/plan/v3" \
   -e ARK_CHAT_MODEL="doubao-seed-2-0-code-preview-260215" \
   -e ARK_VISION_MODEL="doubao-seed-2-0-code-preview-260215" \
   spatial-memory:latest

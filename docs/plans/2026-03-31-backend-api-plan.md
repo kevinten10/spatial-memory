@@ -397,7 +397,7 @@ Chunk 1 (Scaffolding)
 
 **Files:** `internal/pkg/moderation/ark_client.go`, `ark_client_test.go`
 
-- [ ] Ark OpenAI-compatible API integration (`POST https://ark.cn-beijing.volces.com/api/coding/v3/chat/completions`)
+- [ ] Ark OpenAI-compatible API integration (`POST https://ark.cn-beijing.volces.com/api/plan/v3/chat/completions`)
 - [ ] `ModerateImage(imageURL)`, `ModerateText(text)` → `ModerationResult{Safe, Confidence, Categories}`
 - [ ] 30s timeout, 1 retry on 5xx
 - [ ] Unit tests with mocked HTTP

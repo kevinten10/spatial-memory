@@ -182,7 +182,7 @@ func setDefaults() {
 	viper.SetDefault("jwt.access_expiration", 2*time.Hour)
 	viper.SetDefault("jwt.refresh_expiration", 30*24*time.Hour)
 
-	viper.SetDefault("ark.base_url", "https://ark.cn-beijing.volces.com/api/coding/v3")
+	viper.SetDefault("ark.base_url", "https://ark.cn-beijing.volces.com/api/plan/v3")
 	viper.SetDefault("ark.chat_model", "doubao-seed-2-0-code-preview-260215")
 	viper.SetDefault("ark.vision_model", "doubao-seed-2-0-code-preview-260215")
 	viper.SetDefault("ark.timeout", 30*time.Second)
