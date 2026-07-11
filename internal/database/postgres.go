@@ -14,6 +14,10 @@ import (
 )
 
 func NewPostgresPool(ctx context.Context, cfg config.DatabaseConfig) (*pgxpool.Pool, error) {
+	if err := cfg.Validate(); err != nil {
+		return nil, err
+	}
+
 	dsn := strings.TrimSpace(os.Getenv("DATABASE_URL"))
 	if dsn == "" {
 		dsn = cfg.DSN()
@@ -29,6 +33,7 @@ func NewPostgresPool(ctx context.Context, cfg config.DatabaseConfig) (*pgxpool.P
 	poolCfg.MaxConnLifetime = cfg.MaxConnLifetime
 	poolCfg.MaxConnIdleTime = 5 * time.Minute
 	poolCfg.HealthCheckPeriod = 30 * time.Second
+	poolCfg.ConnConfig.RuntimeParams["search_path"] = cfg.SearchPath()
 
 	pool, err := pgxpool.NewWithConfig(ctx, poolCfg)
 	if err != nil {
@@ -44,6 +49,7 @@ func NewPostgresPool(ctx context.Context, cfg config.DatabaseConfig) (*pgxpool.P
 		Str("host", cfg.Host).
 		Int("port", cfg.Port).
 		Str("database", cfg.DBName).
+		Str("schema", cfg.SchemaName()).
 		Int32("min_conns", cfg.MinConns).
 		Int32("max_conns", cfg.MaxConns).
 		Msg("connected to PostgreSQL")

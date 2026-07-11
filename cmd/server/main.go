@@ -64,7 +64,7 @@ func main() {
 	}
 	defer dbPool.Close()
 
-	if err := database.RunMigrations(cfg.Database.DSN()); err != nil {
+	if err := database.RunMigrations(cfg.Database.MigrationDSN()); err != nil {
 		log.Warn().Err(err).Msg("migrations skipped (may already be applied)")
 	}
 
