@@ -14,6 +14,31 @@ Configure these server-side Vercel variables without committing their values:
 - `SPATIAL_DATABASE_SSLMODE`
 - `SPATIAL_DATABASE_SCHEMA=spatial_memory`
 
+Use a dedicated runtime login such as
+`spatial_memory_app.<project-ref>` for `SPATIAL_DATABASE_USER`. Copy the current
+Supavisor host and port from the project's **Connect** panel (or the linked
+Supabase CLI metadata); pooler hosts can change when a project is restored or
+moved. Do not put the shared `postgres` administrator credential in Vercel.
+
+Provision the runtime role from a trusted Supabase SQL session. Replace the
+password placeholder before execution and store the resulting value only in
+the deployment platform:
+
+```sql
+CREATE ROLE spatial_memory_app WITH LOGIN PASSWORD '<strong-random-password>';
+GRANT CONNECT ON DATABASE postgres TO spatial_memory_app;
+GRANT USAGE ON SCHEMA public, extensions, spatial_memory TO spatial_memory_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA spatial_memory TO spatial_memory_app;
+GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA spatial_memory TO spatial_memory_app;
+GRANT SELECT, INSERT, UPDATE, DELETE
+  ON TABLE public.spatial_memory_schema_migrations TO spatial_memory_app;
+```
+
+The hosted deployment additionally makes this role the owner of the dedicated
+`spatial_memory` schema and its objects, so future application migrations do not
+need the shared database administrator password. Do not grant ownership of
+`public`, `extensions`, or objects belonging to other applications.
+
 Run the isolated migration from a trusted shell after setting those variables:
 
 ```bash
