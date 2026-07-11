@@ -2,6 +2,8 @@
 -- Note: is_admin already exists in the initial schema, this migration is for completeness
 -- if the column needs to be added in a fresh migration context
 
+SET search_path TO spatial_memory, public, extensions;
+
 -- Ensure is_admin column exists with proper default
 ALTER TABLE users ALTER COLUMN is_admin SET DEFAULT FALSE;
 

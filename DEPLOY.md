@@ -1,5 +1,27 @@
 # Deployment Guide
 
+## Canonical Supabase + Vercel Deployment
+
+Kevin's hosted demo uses the shared Supabase project `lvazmokpqrywaysgxspg` and the dedicated `spatial_memory` schema. Do not create another Supabase project and do not expose this backend-only schema through the Supabase Data API.
+
+Configure these server-side Vercel variables without committing their values:
+
+- `SPATIAL_DATABASE_HOST`
+- `SPATIAL_DATABASE_PORT`
+- `SPATIAL_DATABASE_USER`
+- `SPATIAL_DATABASE_PASSWORD`
+- `SPATIAL_DATABASE_DBNAME`
+- `SPATIAL_DATABASE_SSLMODE`
+- `SPATIAL_DATABASE_SCHEMA=spatial_memory`
+
+Run the isolated migration from a trusted shell after setting those variables:
+
+```bash
+go run ./cmd/migrate up
+```
+
+The migration stores its history in `public.spatial_memory_schema_migrations`, creates application tables only in `spatial_memory`, and never drops shared PostGIS during rollback.
+
 ## Push to GitHub
 
 ```bash
@@ -123,7 +145,7 @@ flyctl deploy
    ```bash
    make migrate-up
    # or
-   go run cmd/migrate/main.go up
+   go run ./cmd/migrate up
    ```
 
 ## Health Check

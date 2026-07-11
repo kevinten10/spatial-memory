@@ -2,8 +2,10 @@ package config
 
 import (
 	"fmt"
+	"net"
 	"net/url"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -36,6 +38,7 @@ type DatabaseConfig struct {
 	Password        string        `mapstructure:"password"`
 	DBName          string        `mapstructure:"dbname"`
 	SSLMode         string        `mapstructure:"sslmode"`
+	Schema          string        `mapstructure:"schema"`
 	MinConns        int32         `mapstructure:"min_conns"`
 	MaxConns        int32         `mapstructure:"max_conns"`
 	MaxConnLifetime time.Duration `mapstructure:"max_conn_lifetime"`
@@ -111,6 +114,7 @@ func Load() (*Config, error) {
 			Password:        envStr("SPATIAL_DATABASE_PASSWORD"),
 			DBName:          envStr("SPATIAL_DATABASE_DBNAME"),
 			SSLMode:         envStr("SPATIAL_DATABASE_SSLMODE"),
+			Schema:          envStrOr("SPATIAL_DATABASE_SCHEMA", viper.GetString("database.schema")),
 			MinConns:        int32(envInt("SPATIAL_DATABASE_MIN_CONNS", viper.GetInt("database.min_conns"))),
 			MaxConns:        int32(envInt("SPATIAL_DATABASE_MAX_CONNS", viper.GetInt("database.max_conns"))),
 			MaxConnLifetime: viper.GetDuration("database.max_conn_lifetime"),
@@ -152,6 +156,9 @@ func Load() (*Config, error) {
 			Timeout:     viper.GetDuration("ark.timeout"),
 		},
 	}
+	if err := cfg.Database.Validate(); err != nil {
+		return nil, err
+	}
 
 	return cfg, nil
 }
@@ -168,6 +175,7 @@ func setDefaults() {
 	viper.SetDefault("database.password", "spatial")
 	viper.SetDefault("database.dbname", "spatial_memory")
 	viper.SetDefault("database.sslmode", "disable")
+	viper.SetDefault("database.schema", "spatial_memory")
 	viper.SetDefault("database.min_conns", 2)
 	viper.SetDefault("database.max_conns", 20)
 	viper.SetDefault("database.max_conn_lifetime", 30*time.Minute)
@@ -188,14 +196,57 @@ func setDefaults() {
 	viper.SetDefault("ark.timeout", 30*time.Second)
 }
 
+var databaseSchemaPattern = regexp.MustCompile(`^[a-z_][a-z0-9_]*$`)
+
+const defaultDatabaseSchema = "spatial_memory"
+
+func (d DatabaseConfig) SchemaName() string {
+	schema := strings.TrimSpace(d.Schema)
+	if schema == "" {
+		return defaultDatabaseSchema
+	}
+	return schema
+}
+
+func (d DatabaseConfig) Validate() error {
+	if !databaseSchemaPattern.MatchString(d.SchemaName()) {
+		return fmt.Errorf("invalid database schema name %q", d.SchemaName())
+	}
+	if d.SchemaName() != defaultDatabaseSchema {
+		return fmt.Errorf("unsupported database schema %q; expected %q", d.SchemaName(), defaultDatabaseSchema)
+	}
+	return nil
+}
+
+func (d DatabaseConfig) SearchPath() string {
+	return strings.Join([]string{d.SchemaName(), "public", "extensions"}, ",")
+}
+
+func (d DatabaseConfig) databaseURL(query url.Values) string {
+	databaseURL := &url.URL{
+		Scheme: "postgres",
+		User:   url.UserPassword(strings.TrimSpace(d.User), strings.TrimSpace(d.Password)),
+		Host:   net.JoinHostPort(strings.TrimSpace(d.Host), strconv.Itoa(d.Port)),
+		Path:   "/" + strings.TrimSpace(d.DBName),
+	}
+	databaseURL.RawQuery = query.Encode()
+	return databaseURL.String()
+}
+
 func (d DatabaseConfig) DSN() string {
-	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s&default_query_exec_mode=simple_protocol",
-		url.PathEscape(strings.TrimSpace(d.User)),
-		url.PathEscape(strings.TrimSpace(d.Password)),
-		strings.TrimSpace(d.Host),
-		d.Port,
-		strings.TrimSpace(d.DBName),
-		strings.TrimSpace(d.SSLMode))
+	query := url.Values{}
+	query.Set("sslmode", strings.TrimSpace(d.SSLMode))
+	query.Set("default_query_exec_mode", "simple_protocol")
+	query.Set("search_path", d.SearchPath())
+	return d.databaseURL(query)
+}
+
+func (d DatabaseConfig) MigrationDSN() string {
+	query := url.Values{}
+	query.Set("sslmode", strings.TrimSpace(d.SSLMode))
+	query.Set("search_path", "public")
+	query.Set("x-migrations-table", d.SchemaName()+"_schema_migrations")
+	return d.databaseURL(query)
 }
 
 func (r RedisConfig) Addr() string {
@@ -205,6 +256,13 @@ func (r RedisConfig) Addr() string {
 // envStr reads an env var directly and trims whitespace (viper doesn't trim).
 func envStr(key string) string {
 	return strings.TrimSpace(os.Getenv(key))
+}
+
+func envStrOr(key, fallback string) string {
+	if value := envStr(key); value != "" {
+		return value
+	}
+	return strings.TrimSpace(fallback)
 }
 
 // envInt reads an env var directly, trims whitespace, and parses as int.

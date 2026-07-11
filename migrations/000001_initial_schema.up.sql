@@ -1,5 +1,12 @@
--- Enable PostGIS extension
-CREATE EXTENSION IF NOT EXISTS postgis;
+-- Keep application objects isolated from other apps sharing the same database.
+CREATE SCHEMA IF NOT EXISTS spatial_memory;
+CREATE SCHEMA IF NOT EXISTS extensions;
+
+-- Supabase installs PostGIS in an extension schema. Some preconfigured local
+-- images already provide it in public, so the search path supports both layouts.
+CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA extensions;
+
+SET search_path TO spatial_memory, public, extensions;
 
 -- =============================================================================
 -- Trigger function: auto-update updated_at timestamp
