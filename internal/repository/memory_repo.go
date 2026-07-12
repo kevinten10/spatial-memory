@@ -171,9 +171,10 @@ func (r *pgxMemoryRepo) ListByUser(ctx context.Context, userID int64, page, page
 func (r *pgxMemoryRepo) FindNearby(ctx context.Context, lat, lng float64, radius int, sort string, limit, offset int) ([]*model.Memory, error) {
 	// Build ORDER BY clause based on sort parameter
 	orderBy := "distance"
-	if sort == "recent" {
+	switch sort {
+	case "recent":
 		orderBy = "m.created_at DESC"
-	} else if sort == "popular" {
+	case "popular":
 		orderBy = "m.like_count DESC, distance"
 	}
 

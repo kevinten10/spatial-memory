@@ -197,7 +197,7 @@ func (r *pgxCircleRepo) AddMember(ctx context.Context, circleID, userID int64) e
 	if err != nil {
 		return fmt.Errorf("begin transaction: %w", err)
 	}
-	defer tx.Rollback(ctx)
+	defer func() { _ = tx.Rollback(ctx) }()
 
 	// Insert member
 	_, err = tx.Exec(ctx,
@@ -225,7 +225,7 @@ func (r *pgxCircleRepo) RemoveMember(ctx context.Context, circleID, userID int64
 	if err != nil {
 		return fmt.Errorf("begin transaction: %w", err)
 	}
-	defer tx.Rollback(ctx)
+	defer func() { _ = tx.Rollback(ctx) }()
 
 	// Delete member
 	result, err := tx.Exec(ctx,
