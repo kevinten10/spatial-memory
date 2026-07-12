@@ -20,9 +20,19 @@ Supavisor host and port from the project's **Connect** panel (or the linked
 Supabase CLI metadata); pooler hosts can change when a project is restored or
 moved. Do not put the shared `postgres` administrator credential in Vercel.
 
-Provision the runtime role from a trusted Supabase SQL session. Replace the
-password placeholder before execution and store the resulting value only in
-the deployment platform:
+For a new database, first run the initial migration from a trusted shell with
+the `postgres` administrator credential. The first run creates both the
+`spatial_memory` schema and `public.spatial_memory_schema_migrations`, so the
+runtime role does not yet have enough objects or permissions to bootstrap it:
+
+```bash
+go run ./cmd/migrate up
+```
+
+Do not put that administrator credential in Vercel. After the bootstrap
+migration succeeds, provision the runtime role from a trusted Supabase SQL
+session. Replace the password placeholder before execution and store the
+resulting value only in the deployment platform:
 
 ```sql
 CREATE ROLE spatial_memory_app WITH LOGIN PASSWORD '<strong-random-password>';
@@ -34,12 +44,36 @@ GRANT SELECT, INSERT, UPDATE, DELETE
   ON TABLE public.spatial_memory_schema_migrations TO spatial_memory_app;
 ```
 
-The hosted deployment additionally makes this role the owner of the dedicated
-`spatial_memory` schema and its objects, so future application migrations do not
-need the shared database administrator password. Do not grant ownership of
-`public`, `extensions`, or objects belonging to other applications.
+Before running later migrations as the runtime role, make it the owner of the
+dedicated schema and its existing tables and sequences. Run this as the
+administrator after the bootstrap migration:
 
-Run the isolated migration from a trusted shell after setting those variables:
+```sql
+ALTER SCHEMA spatial_memory OWNER TO spatial_memory_app;
+
+DO $$
+DECLARE item record;
+BEGIN
+  FOR item IN
+    SELECT tablename FROM pg_tables WHERE schemaname = 'spatial_memory'
+  LOOP
+    EXECUTE format('ALTER TABLE spatial_memory.%I OWNER TO spatial_memory_app', item.tablename);
+  END LOOP;
+
+  FOR item IN
+    SELECT sequencename FROM pg_sequences WHERE schemaname = 'spatial_memory'
+  LOOP
+    EXECUTE format('ALTER SEQUENCE spatial_memory.%I OWNER TO spatial_memory_app', item.sequencename);
+  END LOOP;
+END
+$$;
+```
+
+Do not grant ownership of `public`, `extensions`, or objects belonging to other
+applications.
+
+Subsequent migrations can use the `spatial_memory_app` credential from a
+trusted shell:
 
 ```bash
 go run ./cmd/migrate up
