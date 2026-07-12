@@ -111,7 +111,7 @@ type chatResponse struct {
 // ModerateImage moderates an image using Ark vision chat.
 func (c *Client) ModerateImage(ctx context.Context, imageURL string) (*model.ModerationResult, error) {
 	if c.apiKey == "" {
-		return nil, fmt.Errorf("Ark API key not configured")
+		return nil, fmt.Errorf("ark API key not configured")
 	}
 
 	prompt := `Analyze this image for content moderation. Check for:
@@ -155,7 +155,7 @@ If safe, categories should be empty. If unsafe, list applicable categories.`
 // ModerateText moderates text content using Ark chat.
 func (c *Client) ModerateText(ctx context.Context, text string) (*model.ModerationResult, error) {
 	if c.apiKey == "" {
-		return nil, fmt.Errorf("Ark API key not configured")
+		return nil, fmt.Errorf("ark API key not configured")
 	}
 
 	prompt := fmt.Sprintf(`Analyze the following text for content moderation:
@@ -227,7 +227,7 @@ func (c *Client) doRequest(ctx context.Context, reqBody chatRequest) (*model.Mod
 	if err != nil {
 		return nil, 0, fmt.Errorf("do request: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -235,7 +235,7 @@ func (c *Client) doRequest(ctx context.Context, reqBody chatRequest) (*model.Mod
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, resp.StatusCode, fmt.Errorf("Ark API returned status %d: %s", resp.StatusCode, string(body))
+		return nil, resp.StatusCode, fmt.Errorf("ark API returned status %d: %s", resp.StatusCode, string(body))
 	}
 
 	var chatResp chatResponse
@@ -244,7 +244,7 @@ func (c *Client) doRequest(ctx context.Context, reqBody chatRequest) (*model.Mod
 	}
 
 	if chatResp.Error != nil {
-		return nil, resp.StatusCode, fmt.Errorf("Ark API error: %s - %s", chatResp.Error.Code, chatResp.Error.Message)
+		return nil, resp.StatusCode, fmt.Errorf("ark API error: %s - %s", chatResp.Error.Code, chatResp.Error.Message)
 	}
 
 	if len(chatResp.Choices) == 0 {

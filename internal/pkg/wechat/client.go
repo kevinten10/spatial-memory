@@ -59,7 +59,7 @@ func (c *client) ExchangeCode(ctx context.Context, code string) (*UserInfo, erro
 	if err != nil {
 		return nil, fmt.Errorf("exchange code: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var tokenResp tokenResponse
 	if err := json.NewDecoder(resp.Body).Decode(&tokenResp); err != nil {
@@ -84,7 +84,7 @@ func (c *client) ExchangeCode(ctx context.Context, code string) (*UserInfo, erro
 	if err != nil {
 		return nil, fmt.Errorf("get user info: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var info UserInfo
 	if err := json.NewDecoder(resp.Body).Decode(&info); err != nil {

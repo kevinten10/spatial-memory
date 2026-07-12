@@ -74,7 +74,7 @@ func main() {
 		if err != nil {
 			log.Fatal().Err(err).Msg("failed to connect to Redis")
 		}
-		defer redisClient.Close()
+		defer func() { _ = redisClient.Close() }()
 	} else {
 		log.Warn().Msg("Redis is disabled, running without cache")
 		// Create a disconnected client so nil checks aren't needed everywhere

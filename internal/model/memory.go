@@ -106,12 +106,12 @@ type UpdateMemoryRequest struct {
 type NearbyQuery struct {
 	Lat      float64 `form:"lat" binding:"required,latitude"`
 	Lng      float64 `form:"lng" binding:"required,longitude"`
-	Radius   int     `form:"radius" binding:"min=10,max=50000"` // meters
+	Radius   int     `form:"radius" binding:"omitempty,min=10,max=50000"` // meters
 	Sort     string  `form:"sort" binding:"omitempty,oneof=distance recent popular"`
-	Limit    int     `form:"limit" binding:"min=1,max=100"`
+	Limit    int     `form:"limit" binding:"omitempty,min=1,max=100"`
 	Cluster  bool    `form:"cluster"`
-	Page     int     `form:"page" binding:"min=1"`
-	PageSize int     `form:"page_size" binding:"min=1,max=100"`
+	Page     int     `form:"page" binding:"omitempty,min=1"`
+	PageSize int     `form:"page_size" binding:"omitempty,min=1,max=100"`
 }
 
 func (q *NearbyQuery) SetDefaults() {

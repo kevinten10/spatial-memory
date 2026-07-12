@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/spatial-memory/spatial-memory/internal/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -174,7 +175,7 @@ func TestMemoryCRUD(t *testing.T) {
 func TestNearbyQuery(t *testing.T) {
 	defer suite.CleanupTestData(t)
 
-	_, token := suite.CreateTestUser(t, "+8613800138200")
+	userID, token := suite.CreateTestUser(t, "+8613800138200")
 
 	// Create multiple memories at different locations
 	locations := []struct {
@@ -205,6 +206,13 @@ func TestNearbyQuery(t *testing.T) {
 
 		require.Equal(t, http.StatusCreated, w.Code)
 	}
+
+	_, err := suite.DB.Exec(ctx,
+		"UPDATE memories SET status = $1 WHERE user_id = $2",
+		model.MemoryStatusActive,
+		userID,
+	)
+	require.NoError(t, err)
 
 	t.Run("Nearby Query - Default Radius", func(t *testing.T) {
 		w := httptest.NewRecorder()

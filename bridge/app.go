@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -33,21 +32,7 @@ func InitApp() {
 		return
 	}
 
-	// Serverless: override pool settings for Supavisor transaction mode
-	cfg.Database.MinConns = 0
-	cfg.Database.MaxConns = 2
-
-	// Supabase pooler: replace custom role with postgres role for Supavisor
-	// Supavisor only authenticates the postgres role; extract project ref from username
-	if strings.Contains(cfg.Database.Host, "pooler.supabase.com") {
-		parts := strings.Split(cfg.Database.User, ".")
-		if len(parts) >= 2 {
-			projectRef := parts[len(parts)-1]
-			cfg.Database.User = "postgres." + projectRef
-			cfg.Database.Port = 5432 // session mode
-		}
-		log.Info().Str("host", cfg.Database.Host).Str("user", cfg.Database.User).Int("port", cfg.Database.Port).Msg("using Supabase session pooler with postgres role")
-	}
+	configureServerlessDatabase(cfg)
 
 	ctx := context.Background()
 
@@ -110,6 +95,15 @@ func InitApp() {
 	})
 
 	log.Info().Msg("spatial memory API initialized")
+}
+
+func configureServerlessDatabase(cfg *config.Config) {
+	// Serverless functions must not keep idle connections between invocations.
+	// Preserve the configured pooler host, port, and database role: Supavisor
+	// supports project-qualified custom roles, which keeps the shared postgres
+	// administrator credential out of the application runtime.
+	cfg.Database.MinConns = 0
+	cfg.Database.MaxConns = 2
 }
 
 func setupDegraded() {

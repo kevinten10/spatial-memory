@@ -21,7 +21,7 @@ func RunMigrations(dsn string) error {
 	if err != nil {
 		return fmt.Errorf("create migrate instance: %w", err)
 	}
-	defer m.Close()
+	defer func() { _, _ = m.Close() }()
 
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		return fmt.Errorf("run migrations: %w", err)
@@ -46,7 +46,7 @@ func RollbackMigrations(dsn string, steps int) error {
 	if err != nil {
 		return fmt.Errorf("create migrate instance: %w", err)
 	}
-	defer m.Close()
+	defer func() { _, _ = m.Close() }()
 
 	if err := m.Steps(-steps); err != nil {
 		return fmt.Errorf("rollback migrations: %w", err)

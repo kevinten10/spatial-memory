@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"testing"
 	"time"
 
@@ -14,7 +15,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 	"github.com/spatial-memory/spatial-memory/internal/config"
+	"github.com/spatial-memory/spatial-memory/internal/database"
 	"github.com/spatial-memory/spatial-memory/internal/handler"
+	"github.com/spatial-memory/spatial-memory/internal/model"
 	"github.com/spatial-memory/spatial-memory/internal/pkg/sms"
 	"github.com/spatial-memory/spatial-memory/internal/pkg/storage"
 	"github.com/spatial-memory/spatial-memory/internal/pkg/wechat"
@@ -68,6 +71,10 @@ func runTests(m *testing.M) (int, error) {
 
 	postgresHost, _ := postgresC.Host(ctx)
 	postgresPort, _ := postgresC.MappedPort(ctx, "5432")
+	postgresPortNumber, err := strconv.Atoi(postgresPort.Port())
+	if err != nil {
+		return 0, fmt.Errorf("parse mapped postgres port: %w", err)
+	}
 
 	// Start Redis container
 	redisReq := testcontainers.ContainerRequest{
@@ -87,17 +94,25 @@ func runTests(m *testing.M) (int, error) {
 	redisHost, _ := redisC.Host(ctx)
 	redisPort, _ := redisC.MappedPort(ctx, "6379")
 
-	// Setup database connection
-	dsn := fmt.Sprintf("postgres://spatial:spatial@%s:%s/spatial_memory_test?sslmode=disable", postgresHost, postgresPort.Port())
-	dbPool, err := pgxpool.New(ctx, dsn)
+	dbCfg := config.DatabaseConfig{
+		Host:     postgresHost,
+		Port:     postgresPortNumber,
+		User:     "spatial",
+		Password: "spatial",
+		DBName:   "spatial_memory_test",
+		SSLMode:  "disable",
+		Schema:   "spatial_memory",
+	}
+
+	if err := database.RunMigrations(dbCfg.MigrationDSN()); err != nil {
+		return 0, fmt.Errorf("failed to run migrations: %w", err)
+	}
+
+	dbPool, err := pgxpool.New(ctx, dbCfg.DSN())
 	if err != nil {
 		return 0, fmt.Errorf("failed to connect to postgres: %w", err)
 	}
-
-	// Run migrations
-	if err := runMigrations(dsn); err != nil {
-		return 0, fmt.Errorf("failed to run migrations: %w", err)
-	}
+	defer dbPool.Close()
 
 	// Setup Redis connection
 	redisClient := redis.NewClient(&redis.Options{
@@ -113,12 +128,6 @@ func runTests(m *testing.M) (int, error) {
 	return m.Run(), nil
 }
 
-func runMigrations(dsn string) error {
-	// For simplicity, we'll run migrations directly using SQL
-	// In production, use golang-migrate
-	return nil
-}
-
 func setupTestSuite(db *pgxpool.Pool, redisClient *redis.Client) *TestSuite {
 	cfg := &config.Config{
 		Server: config.ServerConfig{
@@ -126,9 +135,9 @@ func setupTestSuite(db *pgxpool.Pool, redisClient *redis.Client) *TestSuite {
 			Port: 8080,
 		},
 		JWT: config.JWTConfig{
-			Secret:          "test-secret-key",
-			AccessTokenTTL:  2 * time.Hour,
-			RefreshTokenTTL: 30 * 24 * time.Hour,
+			Secret:            "test-secret-key",
+			AccessExpiration:  2 * time.Hour,
+			RefreshExpiration: 30 * 24 * time.Hour,
 		},
 	}
 
@@ -205,7 +214,12 @@ func (s *TestSuite) CreateTestUser(t *testing.T, phone string) (int64, string) {
 	}
 
 	// Generate tokens
-	tokens, err := s.TokenService.GenerateTokenPair(ctx, userID, false)
+	tokens, err := s.TokenService.GenerateTokenPair(ctx, &model.User{
+		ID:       userID,
+		Phone:    &phone,
+		Nickname: "Test User",
+		Status:   model.UserStatusActive,
+	})
 	if err != nil {
 		t.Fatalf("failed to generate tokens: %v", err)
 	}
