@@ -2,7 +2,9 @@
 .env
 .env.*
 *.md
-docs/
+docs/*
+!docs/swagger/
+!docs/swagger/**
 tests/
 tmp/
 .vscode/
