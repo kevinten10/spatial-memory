@@ -1,6 +1,7 @@
 package router
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -34,6 +35,16 @@ type Config struct {
 }
 
 func Setup(r *gin.Engine, cfg Config) {
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"service": "spatial-memory",
+			"status":  "ok",
+			"health":  "/health",
+			"docs":    "/swagger/index.html",
+			"api":     "/api/v1",
+		})
+	})
+
 	// Health check (no auth)
 	r.GET("/health", cfg.Handlers.Health.Health)
 

@@ -16,6 +16,16 @@ import (
 func TestAuthFlow(t *testing.T) {
 	defer suite.CleanupTestData(t)
 
+	t.Run("Service Root", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("GET", "/", nil)
+		suite.Router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Contains(t, w.Body.String(), "spatial-memory")
+		assert.Contains(t, w.Body.String(), "/health")
+	})
+
 	t.Run("Health Check", func(t *testing.T) {
 		w := httptest.NewRecorder()
 		req, _ := http.NewRequest("GET", "/health", nil)

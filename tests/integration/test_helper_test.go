@@ -166,7 +166,7 @@ func setupTestSuite(db *pgxpool.Pool, redisClient *redis.Client) *TestSuite {
 	circleService := service.NewCircleService(circleRepo, userRepo)
 
 	// Handlers
-	healthHandler := handler.NewHealthHandler(db, redisClient)
+	healthHandler := handler.NewHealthHandler(db, redisClient, true)
 	authHandler := handler.NewAuthHandler(authService)
 	userHandler := handler.NewUserHandler(userRepo)
 	memoryHandler := handler.NewMemoryHandler(memoryService)
