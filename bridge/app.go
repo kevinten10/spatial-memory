@@ -64,7 +64,7 @@ func InitApp() {
 	permissionService := service.NewPermissionService(permRepo, memoryRepo, circleRepo)
 	moderationService := service.NewModerationService(moderationRepo, memoryRepo, nil)
 
-	healthHandler := handler.NewHealthHandler(dbPool, redisClient)
+	healthHandler := handler.NewHealthHandler(dbPool, nil, false)
 	authHandler := handler.NewAuthHandler(authService)
 	userHandler := handler.NewUserHandler(userRepo)
 	memoryHandler := handler.NewMemoryHandler(memoryService)

@@ -117,7 +117,7 @@ func main() {
 	moderationService := service.NewModerationService(moderationRepo, memoryRepo, arkClient)
 
 	// --- Handlers ---
-	healthHandler := handler.NewHealthHandler(dbPool, redisClient)
+	healthHandler := handler.NewHealthHandler(dbPool, redisClient, cfg.Redis.Enabled)
 	authHandler := handler.NewAuthHandler(authService)
 	userHandler := handler.NewUserHandler(userRepo)
 	memoryHandler := handler.NewMemoryHandler(memoryService)

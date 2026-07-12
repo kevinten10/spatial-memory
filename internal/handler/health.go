@@ -12,13 +12,14 @@ import (
 
 // HealthHandler handles health check endpoints.
 type HealthHandler struct {
-	db    *pgxpool.Pool
-	redis *redis.Client
+	db            *pgxpool.Pool
+	redis         *redis.Client
+	redisRequired bool
 }
 
 // NewHealthHandler creates a new health handler.
-func NewHealthHandler(db *pgxpool.Pool, redis *redis.Client) *HealthHandler {
-	return &HealthHandler{db: db, redis: redis}
+func NewHealthHandler(db *pgxpool.Pool, redis *redis.Client, redisRequired bool) *HealthHandler {
+	return &HealthHandler{db: db, redis: redis, redisRequired: redisRequired}
 }
 
 // Health godoc
@@ -52,14 +53,18 @@ func (h *HealthHandler) Health(c *gin.Context) {
 		redisStatus = "not configured"
 	}
 
-	status := http.StatusOK
-	if dbStatus != "connected" || redisStatus != "connected" {
-		status = http.StatusServiceUnavailable
-	}
+	status := healthHTTPStatus(dbStatus, redisStatus, h.redisRequired)
 
 	c.JSON(status, gin.H{
 		"status": map[bool]string{true: "ok", false: "degraded"}[status == http.StatusOK],
 		"db":     dbStatus,
 		"redis":  redisStatus,
 	})
+}
+
+func healthHTTPStatus(dbStatus, redisStatus string, redisRequired bool) int {
+	if dbStatus != "connected" || (redisRequired && redisStatus != "connected") {
+		return http.StatusServiceUnavailable
+	}
+	return http.StatusOK
 }
